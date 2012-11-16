@@ -1,0 +1,19 @@
+From the COPYRIGHT file:
+
+	The WB-ADPCM algorithm was developed by British Telecommunications
+	plc.  Permission has been granted to use it for non-commercial
+	research and development projects.  BT retain the intellectual
+	property rights to this algorithm.
+
+The code implementing the WB-ADPCM algorithm is contained in the following:
+
+	codec_wbs.c
+	codec_wbs.h
+	cx_wbs.c
+	cx_wbs.h
+
+and is referenced from codec.c and the makefiles. If you have concerns about
+IPR, or if you wish to use rat for purposes disallowed by the above license,
+you should remove these 4 files, and make the obvious edits to codec.c and
+Makefile.in such that they are no longer referenced.
+

@@ -1,0 +1,201 @@
+Audio Interfaces
+================
+
+This document describes the set of functions that need to be
+implemented for RAT to support an audio interface.  Examples exist in
+the files auddev_*.[ch].  RAT implements a fairly basic device abstraction
+that should make it straightforward to add new devices.
+
+The following interfaces are currently supported:
+	auddev_alsa.[ch]	Advanced Linux Sound Architecture.
+	auddev_atm.[ch]		ATM A-law driver (reads and writes raw AAL1)
+	auddev_luigi.[ch]	PCM Sound Driver for FreeBSD (Luigi's Driver)
+	auddev_netbsd.[ch]	Sound driver for all NetBSD audio devices
+	auddev_osprey.[ch]	SunVideo Plus Audio Device (Buggy driver!)
+	auddev_oss.[ch]		Linux and FreeBSD Open Sound System
+	auddev_pca.[ch]		FreeBSD Speaker Device (/dev/pcaudio)
+	auddev_sgi.[ch]		SGI Audio Device
+	auddev_sparc.[ch]	Sun Audio Device
+	auddev_win32.[ch]	Win32 SDK Audio Device(s)
+
+The following interfaces are suffering bit-rot but could easily be
+updated if suitably motivated:
+	auddev_freebsd.[ch]	Voxware FreeBSD audio driver
+	auddev_hpux_raw.[ch]	HP-UX audio driver
+
+Adding Audio Interfaces
+=======================
+
+The basic idea is that a source and header file is created containing
+the function declarations and definitions used by the new interface.
+
+In auddev.c the function audio_init_interfaces() is used to add
+interfaces into RAT.  To add a new interface include the header file
+containing the interface declarations before audio_init_interfaces().
+Add an entry like the existing ones for the new interface.
+
+An important distinction exists between audio interfaces: those that
+support single devices (sparc, sgi) and those that support multiple
+devices (e.g. netbsd, win32sdk).  There can only be one interface that
+supports multiple devices (for a given platform) and it must be the first
+to be appear in audio_init_interfaces.  If you look at the code you can
+see why, audio_open passes the index of the device in the call to the
+interface's audio_open function.  The interfaces audio_open function
+uses this to work out which device to use.  It's a minor limitation
+and a fix is deferred until it is an issue.
+
+Audio Interface Functions
+=========================
+
+WARNING: THIS DOCUMENT IS CORRECT AT THE TIME OF WRITING ONLY.
+-------------------------------------------------------------------------------
+int platform_audio_init(void);
+
+Arguments: None.
+Returns:   TRUE if initialization successful, FALSE otherwise.
+Note:      If there is any one time initialization that is need for device
+           support like testing a device exists (auddev_pca) or the presence
+           of a library (auddev_osprey) it should be performed here.  Note this
+           function is optional and does not have to be implemented.
+--------------------------------------------------------------------------------
+int platform_audio_free(void);
+
+Arguments: None.
+Returns:   TRUE if termination successful FALSE otherwise.
+Note:      This function should perform any last minute clean up necessary before
+           termination.  Some hardware/drivers may get confused if not cleanly
+           shutdown. This function is optional and doesn't need to be implemented.
+
+--------------------------------------------------------------------------------
+int platform_audio_open(audio_desc_t ad, audio_format* ifmt, audio_format *ofmt);
+
+Arguments: A unique desciptor and the requested audio formats. Both defined in
+           audio_types.h.  If the device does not support the sample types of
+           the input or output format, it should change the format type to one
+           that it supports via the audio_format_change_encoding function and
+           use that format.  The audio device interface (auddev.c) handles
+           conversion to what the application requested.  No changes should be
+           made to any other fields in the input or output formats.
+Returns:   TRUE if device opened with requested format.  FALSE otherwise.
+Note:      It is intend the audio interface code keeps it own audio file
+           descriptors within the scope of its file.  The descriptor ad
+           corresponds to the index of the interface selected in the table
+           of interfaces.
+--------------------------------------------------------------------------------
+void platform_audio_close(audio_desc_t ad);
+
+Arguments: Descriptor to be closed.
+Returns:   Nothing.
+
+--------------------------------------------------------------------------------
+void platform_audio_drain(audio_desc_t ad);
+
+Arguments: Descriptor to be drained.  Both input and output devices should be
+           drained if possible.
+Returns:   Nothing.
+
+--------------------------------------------------------------------------------
+int  platform_audio_duplex(audio_desc_t ad);
+
+Arguments: Descriptor to be tested.
+Returns:   TRUE if full-duplex, FALSE otherwise.  RAT only supports full-duplex.
+
+--------------------------------------------------------------------------------
+void platform_audio_set_gain(audio_desc_t ad, int gain);
+
+Arguments: Descriptor and input gain to set to (0-100).
+Returns:   Nothing.
+
+--------------------------------------------------------------------------------
+int  platform_audio_get_gain(audio_desc_t ad);
+
+Arguments: Descriptor from which to retrieve input gain.
+Returns:   Input gain (0-100)
+
+--------------------------------------------------------------------------------
+void platform_audio_set_volume(audio_desc_t ad, int vol);
+
+Arguments: Descriptor and output gain to set to (0-100).
+Returns:   Nothing.
+
+--------------------------------------------------------------------------------
+int  platform_audio_get_volume(audio_desc_t ad);
+
+Arguments: Descriptor from which to retrieve input gain.
+Returns:   Output Gain (0-100)
+
+--------------------------------------------------------------------------------
+void platform_audio_loopback(audio_desc_t ad, int gain);
+
+Arguments: Descriptor and gain to set hardware loopback gain to (0-100).
+Returns:   Nothing.
+Note:      Not all devices support this in which case this function should
+           exist but do nothing.
+
+--------------------------------------------------------------------------------
+int  platform_audio_read(audio_desc_t ad, u_char *buf, int read_bytes);
+
+Arguments: Descriptor, sample buffer, no of bytes to read.
+Returns:   Bytes read.
+
+--------------------------------------------------------------------------------
+int  platform_audio_write(audio_desc_t ad, u_char *buf, int write_bytes);
+
+Arguments: Descriptor, sample buffer, no of bytes to be read.
+Returns:   Number of bytes successfully written.
+
+--------------------------------------------------------------------------------
+void platform_audio_non_block(audio_desc_t ad);
+
+Arguments: Descriptor.
+Returns:   Set device to non-blocking.
+
+--------------------------------------------------------------------------------
+void platform_audio_block(audio_desc_t ad);
+
+Arguments: Descriptor.
+Returns:   Set device to blocking operation (not used by RAT).
+
+--------------------------------------------------------------------------------
+void platform_audio_set_oport(audio_desc_t ad, int port);
+
+Arguments: Descriptor and port number corresponding to definitions in config_unix.h
+           or config_win32.h.
+Returns:   Nothing.
+Note:      Port should only change if this call works.
+
+--------------------------------------------------------------------------------
+int  platform_audio_get_oport(audio_desc_t ad);
+
+Arguments: Descriptor to retrieve active output port from.
+Returns:   Selected audio output port number as defined in config_{unix,win32}.h
+
+--------------------------------------------------------------------------------
+void platform_audio_set_iport(audio_desc_t ad, int port);
+
+Arguments: Descriptor and audio input port to change to.
+Returns:   Nothing.
+Note:      Port should only change if this call works.
+
+--------------------------------------------------------------------------------
+int  platform_audio_get_iport(audio_desc_t ad);
+
+Arguments: Descriptor to retrieve active input port from.
+Returns:   Active input port.
+
+--------------------------------------------------------------------------------
+int  platform_audio_is_ready(audio_desc_t ad);
+Arguments: Descriptor.
+Returns:   TRUE if at least one blocksize of audio is available. FALSE otherwise.
+
+--------------------------------------------------------------------------------
+void platform_audio_wait_for(audio_desc_t ad, int delay_ms);
+
+Arguments: Descriptor and upper bound on delay.
+Returns:   Nothing.
+Note:      The purpose of this function is to choke CPU usage.  Function should
+           wait for up to delay_ms for audio to become available.
+
+--------------------------------------------------------------------------------
+
+

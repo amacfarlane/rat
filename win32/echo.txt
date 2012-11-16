@@ -1,0 +1,4 @@
+echo #define RAT_VERSION "%v%" > version.h
+echo !define PRODUCT_VERSION "%v%" > version.nsh
+
+

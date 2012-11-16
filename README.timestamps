@@ -1,0 +1,33 @@
+> If you could please write me a sentence or three about the meaning and
+> use of the ts_t structures, I would be most grateful.
+
+The timestamp structure is a devious tool for handling timestamps from
+different rate clocks.  By default RTP uses 32 bits to handle
+timestamps, however, if you have two sources at different rates and
+the internal timestamp representation used for both is 32 bits you
+have a problem with operations that cause wraparounds since you cannot
+scale the faster rate clock down to the lower clock.
+
+The ts_t structure is used to get around this by having the wrap point
+for a given clock proportional to the rate of the clock.  Thus
+comparison can always be made by linearly scaling timestamp values.
+The timestamp structure itself contains 3 fields:
+
+	ticks - how far along the timeline we are
+	check - used to make sure timestamp is properly initialized.
+	idx   - index to table of frequencies, i.e. identify timebase and wrap point
+
+Timestamps are initialized in one of two ways:
+
+	i)  ts_map32
+	ii) ts_seq32_in
+
+ts_map32 maps a 32 bit timestamp, frequency tuple to a valid
+timestamp.  This is used for mapping small timestamp values - less
+than wraparound of timestamp scale (372 seconds).
+
+ts_seq32_in and ts_seq_32_out convert between ts_t and 32 bit
+timestamps.  They are needed because the wrap points of the two
+representations are different and so use relative difference between
+the previous and current timestamp to calculate the next value.
+

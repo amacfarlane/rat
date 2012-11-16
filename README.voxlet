@@ -1,0 +1,32 @@
+Introducing voxlets....
+=======================
+
+$Id: README.voxlet 3212 2000-02-23 11:26:14Z ucaccsp $
+
+Starting with release 4.1.7, rat supports playout of voxlets - audio clips
+played back to the local user (only) in response to the
+	tool.rat.voxlet.play(filename)
+mbus message. This allows, for example, the balloon help system to trigger
+audible help messages.
+
+When the media engine receive the command to play a voxlet, it searches in
+the directory specified by the VOXLETDIR environment variable, and plays the
+file with the given name, if found. If the VOXLETDIR variable is not set,
+the directory /usr/local/share/voxlets is searched (on windows, \voxlets).
+
+The following filenames are used in the balloon help system:
+	tx_gain.au tx_port.au tx_port.au tx_mute.au tx_powermeter.au
+	rx_gain.au rx_port.au rx_port.au rx_mute.au rx_powermeter.au
+	session_title.au participant_list.au balloon_help.au options.au
+	about.au quit.au prefs_category.au cancel_changes.au
+	apply_changes.au user_name.au user_email.au user_phone.au
+	user_loc.au audio_device.au sampling_freq.au mono_stereo.au
+	suppress_silence.au agc.au audio_loopback.au echo_suppression.au
+	packet_duration.au codec_primary.au channel_coding_none.au
+	channel_coding_redundant.au red_codec.au red_offset.au
+	num_layers.au int_sep.au int_units.au channel_coding_interleave.au
+	repair_schemes.au samples_rate_conversion.au playout_limits.au
+	min_playout_delay.au max_playout_delay.au lecture_mode.au
+	security.au disable_powermeters.au balloon_help.au rqm_enable.au
+	participant_list.au rqm.au
+

@@ -1,0 +1,192 @@
+Debugging Hints
+===============
+
+This document describes the tools, macros, and configure options that
+are employed at UCL to work with RAT.  It also contains a few hints on
+other things and a list of reading matter that most programmers
+benefit from.
+
+RAT is dependent on the UCL common library for a number of important
+features such as RTP, MBUS, and memory routines, it is imperative that
+the common library should be configured with the same options as RAT
+for those options to work correctly.  On Windows this happens
+automatically when you select a configuration, on UNIX configure needs
+to be invoked with the same options for both the common library and
+RAT (use make clean before performing configure to clean out old
+objects).
+
+Debug configuration
+-------------------
+
+On Unix use the configuration option --enable-debug.  On Windows
+select one of the Debug configurations (Build->Set Active
+Configuration).
+
+When debugging is enabled the macro DEBUG is defined and certain
+portions of code that perform checking become enabled.  In addition,
+the macro debug_msg is defined.  This operates in a similar manner to
+printf, on UNIX it logs messages on stderr and on Windows it generates
+debug messages that debugger applications can snoop.
+
+The message format is:
+	<process id>:<source file>:<code line><message>.
+An example of the output is:
+	2236:pdb.c:205 Removing persistent database entry for SSRC 0x7a0e824b
+
+A potential problem on Win32 is that the developer studio debugger
+only listens to messages from it's immediate child process.  It does
+not listen to their children.  When RAT launches the controller
+process creates the media engine and ui as child processes.  To see
+their output a debugger that can listen to all messages is necessary.
+We use the publically available application DebugView
+(http://www.sysinternals.com), it provides filtering options and
+permits a range of debug and message snooping options.
+
+Memory Debug Configuration
+--------------------------
+
+RAT uses a set of memory allocation and debugging routines that are
+incorporated in the common library.  When memory debugging is turned
+on they perform checks on memory corruption (e.g. buffer over- and
+under- flows) and memory tracking to help memory leaks.  To enable
+memory debugging on UNIX run configure with the flag
+--enable-debug-mem.  On Win32 memory debugging is enabled when the
+Debug configuration is selected.
+
+There are two sets of allocation routines in RAT, those based on
+xmalloc and those on block_alloc.  xmalloc is basically a malloc
+replacement, block_alloc is a re-cycling allocator that originated
+because some earlier generation hardware had issues with the rate of
+memory allocation and freeing.  The code for these routines exists in
+common/memory.[ch] and common/util.c.
+
+Brief descriptions are:
+
+xmalloc,   wrappered version of malloc.
+xrealloc,  wrappered version of realloc.
+xstrdup,   wrappered version of strdup.
+xfree,     wrappered version of free that check for corruption before
+           releasing block.
+xmemchk,   checks all allocated blocks for memory corruption.
+xmemdmp,   prints a list of all memory not xfree'd.  Useful especially
+           at process termination for spotting leaks.
+xmemdist,  prints a distribution of the memory allocations to file.
+xdoneinit, timestamps the end of initialization.
+
+block_alloc, re-cycling version of xmalloc.
+block_free,  re-cycling free, but has arguments of address and size.
+
+It will be immediately apparent if code uses the wrong free method for
+the allocation method when memory debugging is enabled.
+
+Coding for Debug
+----------------
+
+It is generally a good idea (tm) to sprinkle code with assert macro's
+(see man assert) when there are known limits or values for variables
+that can be used to check correct operation.  In debug mode, when
+assertions fail they print an error message indicating the failure and
+dump core (or jump into the debugger in Visual Studio).
+
+When adding checks for debugging purposes, bear in mind RAT has
+real-time constraints.  Nearly everything is slower in debug mode
+because of extra sanity checks.  With extra debugging code, you want
+to test cases are sensible, etc, and may want to dump a little state.
+If the sum of these additional checks is too great the application
+probably won't send or receive audio too well.
+
+Try to have code fail gracefully, returning an error code rather than
+just calling abort.  In the author's opinion "ABORT SHOULD ONLY BE
+USED AS A FINAL RESORT", i.e. you have no idea how the application
+might have ended up in a state, but if it did it would be really bad.
+Since you have no clue how you might have got there it would be great
+if a conscientious user sends in a core corresponding to that weird
+state.  Since you are generally running in debug mode when developing
+you really don't need abort (there are too many already in this code).
+
+Dumping Core
+------------
+
+When debugging (and on UNIX), the media engine and user interface dump
+core into their own directories: core-rat-<version>-media and
+core-rat-<version>-ui.  This is because some unix variants insist on
+calling all core dump files 'core' so when one process dies and dumps
+core, it maybe quickly overwritten by second processes core if that
+process depends on the first.
+
+Profiling
+---------
+
+Configure with --enable profile will enable code profiling.  This
+enables logging of how often functions are called, where they are
+called from, how much time was spent in these functions, etc, etc.  It
+is a profoundly useful feature for spotting code hotspots.  If you
+think you may be able to optimize a chunk of code you may want to
+profile it first to see if it makes any difference: the author
+implemented an MMX optimized version of the sample mixing code in
+assembler that sped up this operation by a factor of around 4.  As a
+coding excercise it was interesting to try, but as an optimization it
+would be worthless as mixing is somewhere after another 150 functions
+in terms of time spent doing the operation.
+
+When running applications built with profiling they will dump a usage
+file at the end, appname.gmon, with gcc/egcs.  The gnu profiler is
+gmon (see man gmon and try it!), e.g.
+
+% gmon rat-4.1.5-media core-rat-4.1.5-media/rat-4.1.5-media.gmon
+
+Three Processes
+---------------
+
+Most debuggers are only able to deal with one process for debugging at
+a time.  RAT runs as three processes.  There are two methods for
+debugging child processes that we commonly use:
+
+1) Attach to process.  On UNIX gdb (and perhaps other debuggers?)
+   have an attach command allows the debugger to hijack the running
+   process; i.e. arbitrarily pause it, add break points, inspect data,
+   etc.  This functionality exists on Windows with Visual Studio.  It
+   is possible to attach to a process using the debug menu 'Attach to
+   Process' option, or right clicking on a process in task manager and
+   selecting the attach debugger option.
+
+2) Place -DDEBUG_FORK (UNIX only) in the Makefile and rebuild
+   main_control.o.  This permits the developer to start the child
+   processes manually and start one or both from inside a debugger.
+   When the controller is run it provides command line arguments to
+   that the sub-processes should be launched with.
+
+Dependencies
+------------
+
+On UNIX always type 'make depend' after configure.  This means that if
+you change any function prototypes or structures in header files any
+files that depend on those will be automatically rebuilt in the next
+make.
+
+Tags
+----
+
+On UNIX, editors like vi and emacs have tag modes that allow the keen
+hacker to jump to references and declarations of variables,
+prototypes, macros, etc.  'make ctags' builds vi style tags, 'make
+etags' builds emacs style tags.
+
+Reading
+-------
+
+- Code Complete: A Practical Handbook of Software Construction
+  Steve McConnell, Microsoft Press; ISBN: 1556154844
+
+- The Practice of Programming, Brian W. Kernighan, Rob Pike
+  Addison Wesley Publishing Company; ISBN: 020161586X
+
+- Programming Pearls, Jon L. Bentley
+  Addison-Wesley Pub Co; ISBN: 0201657880
+  Also More Programming Pearls: Confessions of a Coder (out of print).
+
+- Writing Solid Code: Microsoft's Techniques for Developing
+  Bug-Free C Programs, Steve Maguire, Microsoft Press; ISBN: 1556155514
+
+- C Programming Language, Brian Kernighan, Dennis Ritchie.
+  Prentice Hall; ISBN: 0131103709

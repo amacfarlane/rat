@@ -1,0 +1,10 @@
+The files in this directory are for testing modules of RAT.  They do
+not necessarily stay in sync with source code.  However, if you add a
+codec, renderer, whatever, the test applications should provide the
+kind of treatment the modules get inside of RAT.  If you add a new
+kind of module, then whatever you use for debugging may usefully be
+added here.
+
+Projects
+	- Write a configure script.
+	- Add more tests.

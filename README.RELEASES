@@ -1,0 +1,37 @@
+Suggested checklist before release, please add to as necessary.
+
+TESTING
+=======
+
+[ ] Transmit and receive between two machines in lab.
+
+[ ] Runs on each of the supported operating systems.
+
+[ ] Mixes multiple streams (preferably reflected from somewhere on the end
+    of a distant/hostile link).  In g11 there is 3 CD set from Hitch
+    Hikers Guide to the Galaxy that can be used for this purpose.
+
+[ ] Should be able to leave running for order of hours (decoding and
+    transmitting) across hostile link.
+
+[ ] *All* new features tested.  Preferably in a test module and in
+    situ.
+
+[ ] Feature interactions considered and tested.
+
+[ ] Two instances run on the same machine.
+
+[ ] All command line options in code work.
+
+RELEASING
+=========
+
+[ ] All binaries build and run before writing release note.
+
+[ ] MODS file has release note added before source code tarball is made.
+
+[ ] MODS files is copied to distribution directory after tarball.
+
+[ ] rat, common, tcl-8.0, tk-8.0 are tagged in source tree.
+
+[ ] Pub will be open when release is ready.

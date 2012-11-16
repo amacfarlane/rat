@@ -1,0 +1,402 @@
+Use of the message bus by RAT
+=============================
+
+$Id: README.mbus 3642 2004-01-12 17:14:56Z ucacoxh $
+
+This document documents the message bus commands known by RAT. It does not
+define the mbus transport mechanism, that is defined in the companion document
+draft-ietf-mmusic-mbus-transport-01.txt (see http://www.mbus.org/ for any
+future updates to that document).
+
+The UCL common multimedia library contains an implementation of the message
+bus which is intended to be relatively simple to build standalone and may
+be of interest to those wishing to interface with RAT in this manner. This
+should have been supplied along with the RAT source code, but can also be
+retrieved from http://www-mice.cs.ucl.ac.uk/multimedia/software/
+
+RAT comprises three separate processes: controller, media engine and user
+interface. On Unix systems these are called, for example,
+	rat-4.1.5		controller
+	rat-4.1.5-media		media engine
+	rat-4.1.5-ui		user interface
+
+The controller starts first, and spawns the other two processes. It's main
+role is to parse the command line options given to rat, and after starting
+the other processes, inform them of details of the session. Replacing the
+controller with one of your own design would allow you to, for example,
+build a SIP or H.323 terminal with the rat media engine providing RTP
+functions, and your controller providing H.245/SIP.
+
+The message bus is the sole means by which the RAT media engine communicates
+with the user interface. This allows for replacement of the UI or controller
+and for remote control of the media engine.
+
+The media engine and user interface expect to be started in a particular
+manner. That is, they are given command line options as follows:
+	rat-... -token <token> -control <control>
+where <token> is an opaque string, and <control> is the mbus address of the
+controller. After they have been started, they wait for an
+	mbus.waiting(token)
+message from the controller. The token in this message is that given to
+those processes on the command line. On reception of this, they respond
+with
+	mbus.go(token)
+and start periodically sending
+	mbus.waiting(token)
+to the controller. The controller will then send any early configuration
+commands (see below) to those processed, followed by
+	mbus.go(token)
+indicating that the subprocesses should begin operation.
+
+The controller MUST send the following early configuration command to the
+media engine
+	rtp.addr(...)
+and may send other commands.
+
+The controller is not required to send any early configuration commands to
+the user interface.
+
+Once the media engine has started up, it will solicit for a user interface
+by sending mbus.waiting("rai-ui-requested"). The user interface should
+response with a _single_ mbus message containing the commands:
+	mbus.go("rat-ui-requested")
+	tool.rat.settings()
+	audio.query()
+	rtp.query()
+These MUST be sent in a single message, to maintain atomicity, otherwise
+the media engine could send the user interface messages before it has the
+necessary state to receive them.
+
+When the user interface wishes to exit, it should send
+	tool.rat.ui.detach.request()
+to the media engine. The media engine will then complete sending commands
+to the user interface, the final command being
+	tool.rat.ui.detach()
+at which point no further messages will be sent to the user interface, and
+the media engine will return to solicitation for a new user interface.
+
+Quick roadmap of the mbus related code in rat:
+	- mbus_*.c		reception of messages
+	- ui_send_*.c		sends messages from the media engine to the UI
+	- ui_audiotool.tcl	sends messages from the UI to the media engine
+				also handles processing of most of the messages
+				received by the UI
+the common library include mbus related code to actually send and receive
+the mbus packets.
+
+-------------------------------------------------------------------------------
+--- The mbus.* commands provide synchronization and coordination between    ---
+--- processes at a high level.                                              ---
+
+mbus.hello ()
+
+	Sent as a heartbeat message every second to indicate liveness.
+
+mbus.quit ()
+
+	Sent to indicate that the receiving entity should quit.
+
+mbus.bye()
+
+	Sent to indicate that the sender is about to exit. Should be the
+	last message sent by an entity.
+
+mbus.waiting (condition)
+mbus.go (condition)
+
+	An mbus.waiting command indicates that the sender is waiting for
+	the specified condition to be fulfilled. An mbus.go command is sent
+	to inform such a waiting entity that that condition has been met.
+
+-------------------------------------------------------------------------------
+--- The rtp.* commands have two purposes. Firstly, they are sent from the   ---
+--- media engine to the user interface to inform the UI of the participants ---
+--- in a session. Secondly, they can be used to control some aspects of the ---
+--- transmission of RTP packets by the media engine (e.g. the SDES details) ---
+
+rtp.query ()
+
+	Sent to the media engine to request an update of the current state
+	of the RTP session.
+
+rtp.addr (addr rx_port tx_port ttl)
+
+	This can be sent to the media engine on startup to set the
+	addresses used, thereafter it is sent by the media engine as part
+	of the response to rtp.query() to inform the recipient of the
+	addresses used for the session.
+
+rtp.addr.query ()
+
+	Request the media engine to send an rtp.addr() message.
+
+rtp.ssrc (my_ssrc)
+
+	Inform the recipient of the SSRC the sender is using in the
+	session. Again, sent in response the rtp.query().
+
+rtp.source.cname (ssrc name)
+rtp.source.name  (ssrc name)
+rtp.source.email (ssrc email)
+rtp.source.phone (ssrc phone)
+rtp.source.loc   (ssrc location)
+rtp.source.tool  (ssrc tool)
+rtp.source.note  (ssrc note)
+
+	Convey RTP SDES information about a source. Can be sent to the
+	media engine to set the SDES information it includes in its RTCP
+	packets - in which case the ssrc used must be that from the
+	rtp.ssrc() message.
+
+rtp.source.mute (ssrc mute)
+
+	The specified source should be muted (if mute == 1) or unmuted (if
+	mute == 0). The ssrc can be "ALL" to mute/unmute all sources.
+
+rtp.source.codec (ssrc codec)
+
+	Convey codec being used by this source.
+
+rtp.source.packet.duration (ssrc duration)
+
+	Convey the duration of audio packets received from this source.
+
+rtp.source.packet.loss (dest srce loss)
+
+	Convey the percentage packet loss between two participants.
+
+rtp.source.reception (ssrc packets_recv packets_lost packets_mis o packets_dup jitter jit_tog)
+
+	Convey RTCP reception report statistics.
+
+rtp.source.active   (ssrc)
+rtp.source.inactive (ssrc)
+
+	Indicate that the specified source is active/inactive now.
+
+rtp.source.exists (ssrc)
+
+	Indicate to the receiver that the participant with the specified
+	is present in the session.
+
+rtp.source.remove (ssrc)
+
+	The specified source should be remove from the list of
+	participants.
+
+rtp.source.gain (ssrc gain)
+rtp.source.rtt (ssrc rtt)
+
+rtp.source.playout (ssrc playout-delay)
+
+	Convey playout delay being used for this source.
+
+-------------------------------------------------------------------------------
+
+audio.query ()
+
+	Sent to the media engine to query the current audio settings.
+
+audio.input.ports.flush ()
+
+	Sent by the media engine to clear the list of support input ports.
+	Followed by audio.input.ports.add().
+
+audio.input.ports.add (port)
+
+	Add to the list of supported input ports. The parameter will be a
+	string, such as "microphone".
+
+audio.input.port (port)
+
+	Set the port to be used.
+
+audio.input.mute (boolean)
+
+	Enable/disable muting of transmission.
+
+audio.input.gain (percentage)
+
+	Set the input (Eg: microphone) gain.
+
+audio.input.powermeter (percentage)
+
+	Set the level of the input powermeter on the display.
+
+audio.output.mute (boolean)
+audio.output.gain (percentage)
+audio.output.ports.flush ()
+audio.output.ports.add (port)
+audio.output.port (port)
+audio.output.powermeter (percentage)
+
+	Similar to audio.input.*()
+
+audio.channel.coding (coding)
+audio.channel.repair (repair)
+
+	Select the coding or repair scheme to be used.
+
+audio.devices.flush ()
+audio.devices.add (device)
+audio.device (device)
+
+	Supported audio hardware.
+
+audio.file.play.open
+audio.file.play.pause
+audio.file.play.stop
+audio.file.play.live
+audio.file.play.ready
+audio.file.play.alive
+
+	Control the playback of audio files into a session.
+
+audio.file.record.open
+audio.file.record.pause
+audio.file.record.stop
+audio.file.record.live
+audio.file.record.ready
+audio.file.record.alive
+
+	Control the recording of the audio from a session into a file.
+
+audio.suppress.silence (boolean)
+
+	Enable/disable silence suppression in the transmitter.
+
+audio.3d.filter.types
+audio.3d.filter.lengths
+audio.3d.azimuth.min
+audio.3d.azimuth.max
+audio.3d.enabled
+audio.3d.user.settings
+
+	Control 3d audio rendering.
+
+-------------------------------------------------------------------------------
+security.encryption.key (key)
+
+	Enable DES encryption with the specified key.
+
+-------------------------------------------------------------------------------
+session.title (title)
+
+	Indicates the title of this session.
+
+-------------------------------------------------------------------------------
+
+tool.rat.settings ()
+
+	Request that the media engine sends a list of it's settings. Audio
+	and RTP related settings are not reported.
+
+tool.rat.ui.detach.request ()
+
+	Request that the media engine stops sending messages to the user
+	interface.
+
+tool.rat.ui.detach ()
+
+	Sent by the media engine in response to tool.rat.ui.detach.request().
+	This is the last message the media engine sends to the user interface.
+
+tool.rat.agc (boolean)
+tool.rat.filter.loopback (boolean)
+tool.rat.lecture.mode (boolean)
+tool.rat.echo.suppress (boolean)
+tool.rat.silence (boolean)
+tool.rat.powermeter (boolean)
+
+	Enable/disable various options.
+
+tool.rat.bps.in (bps)
+tool.rat.bps.out (bps)
+
+	Used by the media engine to inform the user interface of the input
+	and output data rates.
+
+tool.rat.spike.events (ssrc ...)
+tool.rat.spike.toged (ssrc ...)
+
+	Used by the media engine to inform the user interface of the number
+	of "spike events" (sudden increases in the end to end delay, which
+	may affect media playout), and the number of packets "thrown on the
+	ground" (toged) as a result of those events.
+
+tool.rat.audio.buffered (ssrc ...)
+tool.rat.audio.delay (ssrc ...)
+tool.rat.audio.skew (ssrc ...)
+
+	Used by the media engine to informt he user interface of the amount
+	of audio buffered for playout, playout delay and relative clock skew
+	between source and receiver.
+
+tool.rat.loopback.gain (gain)
+
+	Set the gain of the audio signal looped back from microphone to
+	headset at the transmitter.
+
+tool.rat.converters.request ()
+
+	Request that the media engine informs the sender of this message of
+	the list of supported sample rate converters.
+
+tool.rat.converters.flush ()
+
+	Clear the list of sample rate converters. Sent by the media engine
+	in response to tool.rat.settings() or tool.rat.converters.request().
+
+tool.rat.converters.add (...)
+
+	Inform the receiver of a supported converter. Sent by the media
+	engine.
+
+tool.rat.converter (...)
+
+	Sent to the media engine to select a particular converter.
+	The converter name used is one of those previously sent in
+	a tool.rat.converters.add() message.
+
+tool.rat.repairs.request()
+tool.rat.repairs.flush ()
+tool.rat.repairs.add (...)
+
+	These function in much the same way as tool.rat.converters.*(),
+	except that they list error concealment (repair) schemes.
+
+tool.rat.codecs.request()
+tool.rat.codecs.flush()
+tool.rat.codecs.add(...)
+
+	These function in much the same way as tool.rat.converters.*(),
+	except that they list codecs.
+
+tool.rat.codec (...)
+
+	Set the codec to be used.
+
+tool.rat.playout.max (ms)
+tool.rat.playout.min (ms)
+tool.rat.playout.limit (boolean)
+
+	Set the maximum and minimum playout delay allowed. Ignored unless
+	tool.rat.playout.limit(1) is sent.
+
+tool.rat.rate (units-per-packet)
+
+	Set the number of "units" (codec frames, typically) placed in each
+	packet when transmitting.
+
+tool.rat.format.in (...)
+
+tool.rat.sampling.supported (...)
+
+	Inform the receiver that a particular sampling rate is supported by
+	the audio hardware. Sent in response to tool.rat.settings().
+
+tool.rat.voxlet.play (filename)
+
+	Play back a voxlet. See README.voxlet for details.
+
+-------------------------------------------------------------------------------

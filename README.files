@@ -1,0 +1,198 @@
+Why so many files?
+-----------------
+
+There are a lot of files to have to deal with in this application.
+
+Before describing the files themselves a brief overview of how the
+modules are implemented is necessary as this will help explain a lot
+of the files trivially.
+
+There is a common design philosophy between the components that have
+to be modular.  In general there is one file that contains an
+interface to all of the alternate module implementations.  This is
+interface is implemented via a table of function pointers that
+reference components.  This prevents the need for large switch
+statements and means that modules can be added trivially so long as
+they implement the functions required in the table of the component
+type.  The table is hidden from the application to prevent direct
+access, reduce the risk of memory corruption and to keep the code
+clean.
+
+Access to the table is via a simple query mechanism that typically
+returns information about the components of that type.  As a simple
+example here is how to print out all of the available codecs:
+
+	#include "codec_types.h"
+	#include "codec.h"
+
+	int main() {
+		const codec_format_t *cf;
+		codec_id_t            cid;
+		u_int32 i, n;
+
+		/* Call one time initialization function */
+		codec_init();
+
+		n = codec_get_codec_count();
+		for(i = 0; i < n; i++) {
+			/* Get handle for i'th codec */
+			cid = codec_get_codec_number(i);
+
+			/* Get details of codec by handle */
+			cf  = codec_get_format(cid);
+
+			/* Print the details */
+			printf("%3u s\n", i, cf->long_name);
+		}
+
+		return 0;
+	}
+
+A cursory look at the files and you'll see there are many codec_*.[ch]
+files and cx_*.[ch] files.  What are all these files?
+
+codec.[ch] implement the codec table and the interface to the table.
+
+codec_*.[ch] are contain functions that appear in the table.
+
+cx_*.[ch] are the codec functions.  These are kept separate from the
+          interfacing functions in codec_*.[ch] to keep the code clean.
+
+At the time of writing that accounts for 40 of the ~100 files.  If you
+want to add a component that does a job similar to one of the other
+already implemented, the best way to figure out how is to take a
+component of that type.
+
+A tour of the files
+-------------------
+
+/* Audio device table interface files */
+
+auddev.[ch]
+audio_types.h		Audio types for audio device handling.
+
+/* Audio driver interface files */
+
+auddev_luigi.[ch]	FreeBSD audio driver.
+auddev_null.[ch]	Null audio device (spoof device when none avail).
+auddev_osprey.[ch]	PCI SunVideo (broken).
+auddev_oss.[ch]		Open Sound System.
+auddev_pca.[ch]		FreeBSD PC audio device.
+auddev_sgi.[ch]		SGI audio.
+auddev_sparc.[ch]	Sun audio.
+auddev_win32.[ch]	Win32 sdk audio device and
+
+/* Channel coder table interface files */
+channel.[ch]
+channel_types.[ch]	Channel types for manipulation.
+
+/* Channel coder implementation files */
+cc_layered.[ch]		Layered channel coder.
+cc_rdncy.[ch]		Redundant channel coder.
+cc_vanilla.[ch]		Vanilla (null) channel coder.
+
+/* Codec table interface files */
+codec.[ch]
+codec_types.[ch]	Basic types and functions for codecs.
+codec_state.[ch]	Functions for holding codec state.
+
+/* Codec interfaces and implementations */
+codec_acm.[ch]		Interface files to Windows ACM compressor.
+codec_dvi.[ch]		IMA adpcm interface.
+codec_g711.[ch]		ITU G711 interface and implementation files.
+codec_g726.[ch]		ITU G726-16/24/32/40 interface files.
+codec_gsm.[ch]		ETSI GSM interface files.
+codec_l16.[ch]		Linear-16 interface and implementation files.
+codec_lpc.[ch]		LPC interface files.
+codec_vdvi.[ch]		Variable rate IMA adpcm interface files.
+codec_wbs.[ch]		Wideband speech interface files.
+cx_dvi.[ch]		IMA adpcm implementation files.
+cx_g726.[ch]		ITU G726 implementation files.
+cx_g726.h
+cx_g726_16.c
+cx_g726_24.c
+cx_g726_32.c
+cx_g726_40.c
+cx_gsm.[ch]		GSM implementation files.
+cx_lpc.[ch]		LPC implementation files.
+cx_vdvi.[ch]		Variable rate IMA adpcm implementation files.
+cx_wbs.[ch]		Wideband speech implementation files.
+
+/* Sample rate and channel conversion interface files */
+converter.[ch]
+converter_types.h
+
+/* Sample rate and channel conversion implementation files */
+convert_acm.[ch]	Windows ACM sample rate converter.
+convert_extra.[ch]	Extrapolating sample rate converter.
+convert_linear.[ch]	Linear interpolating sample rate converter.
+convert_sinc.[ch]	Sinc filter sample rate converter.
+
+/* Utilities for channel conversion implmentation files */
+convert_util.[ch]
+
+/* Interface and implementation of 3D renderer's */
+render_3D.[ch]
+
+/* Interface and implementation of repair schemes */
+repair.[ch]
+
+/* Sound file playback and recording interface files */
+sndfile.c
+sndfile.h
+
+/* Sound file playout and recording implementation files */
+sndfile_au.c
+sndfile_au.h
+sndfile_raw.c
+sndfile_raw.h
+sndfile_types.h
+sndfile_wav.c
+sndfile_wav.h
+
+/* RAT specific files */
+config_unix.h		Includes and defines for UN*X.
+config_win32.h		Includes and defines for Win32.
+
+audio.[ch]		Audio device setup and teardown functions.
+audio_fmt.[ch]		Audio format manipulation (comparison, dup, etc).
+audio_util.[ch]		Assorted audio processing (bias removal, filtering, MMX mixing).
+
+crypt.[ch]		Interface to DES encryption.
+crypt_random.[ch]	LBL's rng used for encryption.
+cushion.[ch]		Audio device cushion computation.
+main.c			main.
+main_engine.c		main for audio engine (not used yet).
+main_ui.c		main for user interface (not used yet).
+mbus_control.[ch]	Message bus utility functions.
+mbus_engine.[ch]	Audio engine message bus command processor.
+mbus_ui.[ch]		User interface message bus command processor.
+mix.[ch]		Audio mixer.
+net.[ch]		Network interface files.
+parameters.[ch]         Audio energy, silence detection, automatic gain
+			control, and voice activity detection function.s
+pckt_queue.[ch]		Packet queueing functions.
+playout.[ch]		Playout buffer functions.
+rtcp.[ch]		RTCP processing, packetization, and database files.
+rtcp_db.[ch]
+rtcp_pckt.[ch]
+rtp_callback.[ch]	Callback interface for RTCP processing when implemented.
+session.[ch]		Session files - session_struct holds application global data.
+settings.[ch]		Functions to load and save settings to file / registry.
+source.[ch]		Audio source processing functions.  Controls decode path.
+statistics.[ch]		Packet reception, playout calculation, and statistics maintenance.
+tcltk.[ch]		Interface to tcl/tk interpreter.
+timers.[ch]		Timer functions.
+transcoder.[ch]		Transcoder implementation files (broken).
+transmit.[ch]		Transmitter functions (gather, classify, encoder audio functions).
+ts.[ch]			Timestamp functions.
+ui.[ch]			Function calls to pass messages to the user interface.
+usleep.[ch]		An implementation for usleep for platforms that need it.
+version.h		Version number - automagically generated.
+win32.c			Miscellaneous Win32 functions.
+
+/* Tcl scripts */
+asfilebox.tcl		Asynchronous file box "widget".
+ui_audiotool.tcl	Audio tool user interface script.
+ui_transcoder.tcl	Transcoder user interface script.
+

@@ -1,0 +1,212 @@
+Microsoft Developer Studio Workspace File, Format Version 6.00
+# WARNING: DO NOT EDIT OR DELETE THIS WORKSPACE FILE!
+
+###############################################################################
+
+Project: "rat"=.\rat.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name common
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name tcllib
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name tcl2c
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name tklib
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name uclaudio
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name uclcodec
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name uclsndfile
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name ratui
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name ratmedia
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "ratmedia"=.\ratmedia.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name common
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name uclaudio
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name uclcodec
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name uclsndfile
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "ratui"=.\ratui.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name common
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name tcl2c
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name tcllib
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name tklib
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "tcl2c"="..\tcl-8.0\win\tcl2c\tcl2c.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "tcllib"="..\tcl-8.0\win\tcllib.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name tcl2c
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "common"=..\common\src\common.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "testcommon"=..\common\tests\testcommon.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name common
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "tklib"="..\tk-8.0\win\tklib.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name tcllib
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name tcl2c
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "uclaudio"=.\uclaudio.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "uclcodec"=.\uclcodec.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "uclsndfile"=.\uclsndfile.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Global:
+
+Package=<5>
+{{{
+}}}
+
+Package=<3>
+{{{
+}}}
+
+###############################################################################
+

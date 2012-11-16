@@ -1,0 +1,41 @@
+
+------------------------------------------------------------------------
+This file provides information on enabling G.728 support in RAT.
+Please do not make binaries containing G.728 available to the public
+without consulting the G.728 intellectual property right owners.  We
+have added support for evaluation purposes only.
+------------------------------------------------------------------------
+
+G.728 support is provided by a wrapper around the publicly available
+encoding and decoding routines by Alex Zatsman (with additions
+by Michael Concannon).
+
+The G.728 wrapper can be found on the UCL multimedia cvs server.  The
+module is named "g728lib".  Details on accessing the server may be
+found at:
+
+	http://www-mice.cs.ucl.ac.uk/multimedia/software/cvsanon.html
+
+The modules rat, common, g728lib should be extracted into the same
+directory.  g728lib needs building first to allow RAT's configure
+script to detect it and put the appropriate pieces into the Makefile.
+
+We have not made any modifications to the underlying encoding and
+decoding functions in Alex's package.  The functions use static
+variables to contain state and therefore limit the number of instances
+that should be run per process to 1.  Running more instances
+simultaneously will lead to state corruption and degradation of the
+audio stream quality.  For point-to-point communication this should
+not be a major issue if silence suppression is used.  Echo
+suppression (network-mutes-mic operation) will also help.
+
+When using G.728 it is worth considering that it has an exceptionally
+small frame size (0.625ms).  We recommend using 32 or 64 units (frames)
+per packet to get a reasonable amount of G.728 data into each RTP packet.
+
+	32 units (frames) per packet -> 20ms audio per packet
+	64 units (frames) per packet -> 40ms audio per packet
+
+Enjoy!
+
+

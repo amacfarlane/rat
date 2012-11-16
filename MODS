@@ -1,0 +1,1767 @@
+MODIFICATIONS FILE
+------------------
+
+$Id: MODS 3902 2006-10-19 15:23:11Z csp $
+
+Copyright (C) 1995-2006 University College London
+All rights reserved.
+
+This software is distributed under license, see the file COPYRIGHT for full
+terms and conditions.
+
+The modifications here include the development versions, not all of which
+are released.  This list is not intended to be comprehensive. The current
+release is available at http://www-mice.cs.ucl.ac.uk/multimedia/software/rat/
+
+v0      Initial audio tool
+	Old VAT and RTPv2(5) compatibility
+	PCM DVI GSM LPC codecs
+
+v1      Vicky's restructuring
+	Dropped old VAT compat mode
+	Used in ReLaTe trials
+	New UI including small mode
+	Video Sync code added
+
+v2.0    Transmitter cleaned up
+	Lots of bugs fixed
+	Replaced DVI and LPC codecs with VAT4 versions
+	Released in Boston WWW4
+
+v2.1    Ported to Tcl7.3/Tk4.0
+	Added UI response slider
+
+v2.2    Added play and rec options
+
+v2.3    Port to Tk4.1/Tcl7.5
+
+v2.4a0  Port to Windows95
+v2.4a1  Fixed active speaker indication
+v2.4a2  Fixed GSM
+v2.4a3  Release to MERCI partners for testing
+v2.4a4  Fixed broken assertions...
+v2.4a5  SGI fix
+v2.4a6  Security holes fixed
+	Assertion handling improved
+	Start at encryption and multi-rate audio
+v2.4a7  FreeBSD modifications
+	Fixed playout calculation (probably)
+v2.4a8  Added RTCP SDES TOOL field to stats panel
+	Fixed version number
+	Made packet repetition an option and set default to OFF
+	Fixed encoding selection bugs
+	Misc bug fixes....
+v2.4a9  Fixed participant display when audio device is busy
+	When device is busy audio controls get disabled
+	Added code to set microphone gain under Win95
+	Modified loop timing for win95 version so that it does not hog CPU
+	Made session title appear as window title with -C flag
+v2.4a10 Added OS type to RTCP tool string
+
+v2.5a0  Fixed long DVI packet format. Now there is only one state (VAT comp).
+	Reduced UI window border width. New look!
+	Added scrollbar to participants window
+	New participant stats code. Allows multiple windows...
+	Attempt to fix some of the stats
+	Popup window to request RTP name if resource not set
+v2.5a1  Changed redundancy packet format to conform to UCL-INRIA spec
+	Added error code to report use of old packet format
+	New code to do encoding name stats
+	Fixed RTCP RR packets to conform with latest spec
+	Made RAT look in .RTPdefaults for user name
+	Added IP address display in stats
+v2.5a2  Highlight other RAT users in list of participants
+	Ignore audio until RTCP packet received
+v2.5a3  Added encryption (Darren said it's compatible with vat)
+
+v2.6a0  Added command line option to set redundancy type
+	Started to change payload type to match draft-perkins-rtp-redundancy-01.txt
+	(Grouped headers, but haven't changed bit order yet...)
+v2.6a1  Finished changing the payload type.
+	Default redundancy pt=121
+	Send initial RTCP message as soon as we start up...
+v2.6a2  Allow window to resize horizontally (requested by vilhuber@cs.colorado.edu)
+	Updated copyright notice.
+	Updated about panel.
+	Added -pt pt/codec/clock/channels command line option.
+	Example: "-pt 121/redundancy" to set redundancy payload type to 121
+	Remove -rpt option (use -pt instead).
+	Remove -f2 option.
+	Change -f option to accept things like "-f pcm/dvi" to set redundancy type.
+v2.6a3  Fixed packing order so it resizes horizontally correctly.
+v2.6a4  New WIN32 version
+	Changed priority of thread
+	Fixed cushion code to work with I/O switching
+	Linked tcl and tk with WIN32 binary so no DLLs are needed
+v2.6a5  Partial rewrite of win32 audio driver to use static buffers
+	Solved most win32 audio problems
+v2.6a6  Made the prompt for .RTPdefaults information less user hostile
+	Fixed LPC decoding on SGIs (-fsigned-char does it!?!)
+v2.6a7  Removed old bitmap from control panel
+	Rewrite of small user interface (command line option -smallui)
+v2.6a8  Further rewrite of the small user interface
+	Fixed SO_REUSEADDR
+	HP-UX fixes
+	Added "-crypt <key>" command line option to enable encryption
+v2.6a9  Fix m/cast power meters when encryption is turned on.
+v2.6a10 HP-UX fixes
+v2.6a11 Remove debugging malloc wh  en NDEBUG is defined.
+v2.6a12 Code cleanup in preparation for mixer
+	Corrected URL on the about panel
+v2.6a13 Code cleanup in preparation for mixer
+	Added -li <local_interface> option for multihomed hosts
+	Removed annoying transient tag from pop-up windows.
+v2.6a14 Added an icon
+	Win32 fixes
+	Removed -li stuff, since it broke the win32 port.
+	More HP-UX changes
+
+v3.0.0  Restructure code for audio translator/mixer
+	Extended ascii hostnames (>15 chars) - useful for unicast
+	Additional RTP header validation
+v3.0.1  Major restucturing of main_rat.c, and split into several separate files.
+	Fixes for Linux.
+	Include full/half duplex stuff in all versions.
+v3.0.2  Bug fixes to auddev_linux.c
+	Fixes to RTCP header checks on little-endian machines.
+	Now obeys xresources settings.
+v3.0.3  Experimental release for Linux
+	Some fixes to encryption code: it still doesn't work though...
+v3.0.4  Major mods to init_session.c
+	Added mixer code to linux port.
+v3.0.5  Fake TS start if we TOG packets
+	Fix RTCP timestamp epoch to 1900 not 1970 to conform to RFC1889
+	Fix display of group address in options panel.
+	Fix CNAME.
+	Extensive changes for the audio transcoder/mixer.
+	New HP-UX audio device driver from UiO added.
+v3.0.6  More changes for the audio transcoder/mixer.
+	Fixes to Linux audio driver when in half-duplex mode.
+	Added the -version option.
+v3.0.7  Major changes for the audio transcoder/mixer: First version to work at all!
+	Now sources $HOME/.rat as tcl on startup
+	Linux fixes
+v3.0.8  CNAME now uses dotted-quad representation of the IP address, not FQDN.
+	16bit linear audio throughout main code: not all device drivers fixed yet.
+	Make DVI the default primary encoding.
+	Added L16 (16bit linear, uncompressed) codec.
+	Both sides of transcoder/mixer use same SSRC/CNAME.
+	Calculate RTCP reporting interval, rather than using constant 6 seconds.
+	Major rewrite of transmitter and receiver code (supports multiple red)
+	Added CSRC processing to receiver
+	Fix indication of active speakers
+	Update device buffer cushion code
+	Removed small (ReLaTe) UI
+	Minor redisign of option UI
+	Added lecture mode
+	Linux port now works again
+v3.0.9  Added minimal LBL conference bus support
+	Enabled voice-switching of video using LBL conference bus/vic
+	Fixed SGI 16 bit
+	Fixed WIN32 16 bit
+	Slight highlighting of participants after they stop speaking
+	Now uses tk4.2/tcl7.6
+v3.0.10 Prehang and posthang added to new code
+	IP_MULTICAST_LOOP is now on for the session port
+	We can now parse our BYE message although it is wrong
+	Packet repetition added to new code
+	Audio DC bias removal added for all platforms
+v3.0.11 We can no longer parse our BYE message, since it is wrong!
+	More UI changes... (packet format uses pull down menus)
+	Disable powermeters option added
+	Selective muting of participants possible with middle mouse button.
+	Automatic bias removal (turns off if not needed)
+	Fix handling of RTP packets with CSRC data
+	Rewrite of RTCP handling code...
+	Fix RTCP BYE packet
+	Transcoder/mixer now passes RTCP packets
+	Exponential fade on packets   (no good)
+	LPC redundancy alignment code (also no good)
+v3.0.12 Linear fade on repeated packets
+	Fade on repeated LPC decoded packets
+	Prevention of mixing dummies with no decompressed data
+	Packet length shown in UI
+	Can select N-level redundancy from command line (-f pcm/dvi/lpc for example)
+	Fix parsing of command line options
+	Lecture mode is on by default
+	Turn off lecture mode as soon as we send data
+	Added -loopback_rtp option for loopback of the RTP packets (RTCP loopback is always on)
+	Added audio device trading via the LBL conference bus
+	Added flakeway operation
+v3.0.13 Integrated transcoder/mixer into the main Rat code.
+v3.0.14 Move to tcl-7.6p2/tk-4.2p2
+	Fix linux/HP-UX ports
+	Fix for flakeaway
+v3.0.15 Assorted bug fixes
+	Hang onto multiple encoded data in receiver
+	Logic into UI for redundant coding types
+	Fix LPC redundancy (Ho Ho)
+	Fix sending L16 with redundancy
+	Fix auto-select of "Mike mutes net" when running on a half-duplex machine
+	TCL_ALL_EVENTS in event processing loop (sockets from tcl scripts->fileevents)
+v3.0.16 Bug fixes to the transmitter
+	Fix CSRC processing
+v3.0.17 Fixes for Win32
+v3.0.18 Fix RTCP BYE packet on little-endian machines
+	Muting of output now frees data
+	Fix reception of 160ms packets
+	Fix uninitialised variable in rtcp_db
+v3.0.19 Remove spurious debugging messages when we can't open the audio device
+	Cleanup HP-UX audio driver
+v3.0.20 Can now select line-in/microne input on SGI machines
+	Added -K option to enable encryption (synonym for -crypt)
+	Cleanup Linux audio driver
+	Cleanup Sparc audio driver
+	Cleanup for draft-ietf-avt-profile-new-00
+	Added -double_speed (16kHz) option
+	Transcoder no longer hits stdin/stdout with audio ioctls
+	Rewrite and optimize decryption of RTCP packets
+	RTCP timer reconsideration done for every RTCP packet received (following presentation at Memphis IETF...)
+	RTCP SR and SDES fixes
+	Can now send/display PHONE, LOC and EMAIL SDES items.
+	Fixed mike mutes net operation for half duplex cards.
+	FreeBSD port now works.
+	Win32 version uses registry to store defaults.
+v3.0.21 Added signal handler, to catch SIGINT and exit cleanly (with RTCP BYE)
+	Linux device driver now accepts 16kHz operation.
+	Assorted bug fixes to Linux device driver.
+	Initialise device_time variable: prevents crash if we can't access the audio device.
+	The use of strdup() interacts badly with xmalloc(). Fixed.
+	Fixed transcoder RTCP BYE handling
+	* Branch here: v3.1 development starts, later v3.0 fixes will have to
+	* be forward ported
+v3.0.22 Remove debugging messages in statistics.c
+	Remove WBS codec
+	Remove -double_speed option
+v3.0.23 Linux port uses both audio channels, rather than just the left channel
+	Linux port no longer repeatedly resets the volume to 50%
+	Bug fix for HP-UX audio driver (Terje Vernly <terjeve@newlearning.no>)
+	Fix CPU usage on Win32
+v3.0.24 Fix encryption
+	Fix loopback of packts
+	Fix crash in LBL conference bus code, sending focus when the CNAME was NULL
+	Fix RTCP header validation
+	Fix RTP header validation when padding bit is set
+	Fix voice switching of video using LBL conference bus with vic
+	Modifications to WIN32 silence detection as PC hardware often breaks previous algorithm.
+	Assorted Win32 bug fixes
+	Win32 HOMEDIR bug fix.
+3.0.25  Assorted Win32 fixes.
+3.0.26  Fixed bug in net.c that caused packets to cease processing on some Win32
+	boxes.
+3.0.27  Fix transcoder problems on half-duplex machines. Thanks to Sachin Sheth
+	for providing the fix.
+	Fix fonts for solaris 2.6.
+	* Released 15 August 1998
+3.0.28  Update copyright notice (the dates were wrong!)
+	Endian fix to the RTCP packet forwarding code (Thanks to Sachin Sheth).
+	Fixed HOMEDIR problem introduced in 3.0.27 for Win32.
+	Fixed catch when sourcing ~/.rat
+	* Released 22 September 1998
+
+3.0.29  Added -smallui option to use relate interface and to enable power
+	messages via the lbl confbus
+	Fixed -drop option
+	* Released 21 December 1998
+
+3.0.30  Fix statistics in RTCP SR/RR packets
+	Fix copyright notice in small UI
+	Fix URL in the about panel
+	* Released 6 January 1999
+
+3.0.31  Remove obsolete tcl/tk library code
+	Fix tcl/tk configuration on win32
+	Move to using winsock2.h on win32
+	* Released 29 January 1999
+
+3.0.32  Fix Tk resource files on Win32
+	* Released 4 February 1999
+
+3.0.33  Fix font in the statistics panel, which I broke in 3.0.31 (oops!)
+	Added A-law audio codec.  Back port from 3.2x.
+	Added MMX mixing support.
+	Patch from Michael Wallbaum for transcoder on win32.
+	Made file processing use binary mode opens.  Win32 cares.
+	* Released 1 March 1999
+
+3.0.34  Removed -D$(USER) from Makefile (Reported by Ola Borrebak).
+	Added alaw to command line codecs (Reported by Dimitris Terzis).
+	Winsock 1/2 detection and selection.
+	Bug fixes for Winsock 1 built with Winsock 2 headers.
+
+
+v3.1.0  Added the wide-band speech codec (use with the -double_speed hack)
+	Cleanup statistics.c
+	Fixed Win32 cname
+	Made left mouse button on participants toggle stats on and off
+	Keep input/output mode selection and gain settings when device trading
+	Reorganize the codec_* files
+	Add indication of loss rat to UI
+	Add automatic gain control
+	Fix CPU usage on Win32
+	GSM now implements 06.11 repair (so there)
+	Fixed self induced LPC bug :-)
+	Improved cushion code to give lower delay
+	Completely fixed highlighting (honest)
+v3.1.1  Default RTP port is 5004 (draft-ietf-avt-profile-new-00)
+	Turn off automatic gain control in the transcoder
+	Linux port uses both audio channels, rather than just the left channel
+	Linux port no longer repeatedly resets the volume to 50%
+	UI user participant code now maintains sorted list
+	No longer source $HOME/.rat on startup
+	Separate the UI from the media engine (use conference bus for communication)
+v3.1.2  Many changes to the conference bus protocol and support code
+	Allow multiple UI scripts (use -ui <name> to select)
+	Unify Linux/FreeBSD drivers into auddev_oss.c
+	Fix HP-UX audio driver (Terje Vernly <terjeve@newlearning.no>)
+	Fix encryption code on little-endian machines
+	Fix RTCP header validation code
+	Fix security hole in confbus (zap [] in strings send to tcl)
+	Add Anna Bouch's UI code (use "-ui anna" to enable)
+	Add ReLaTe UI code (use "-ui ReLaTe" to enable)
+
+v3.2.0  - Codec interface rewrite. Based on structure holding all codec
+	  parameters and pointers to init/encode/decode functions.
+	- Multi rate support. Multiple clock support (one per participant plus
+	  a few internal ones to keep RTCP etc working).
+	- Rewrite of transmit code. Circular buffer is gone and now a list of
+	  minibufs is used instead. Within each minibuf the unit_size (which
+	  is calculated from number of channels, freq etc) remains constant.
+	- Rewrite of receive code to support multiple unit_sizes. Now each
+	  receiver has a separate receive buffer. Within each buffer units of
+	  different length can be mixed without any problems. The only
+	  restriction is that for any particular time segment all coded_units
+	  must be compatible (i.e same length /frequency/channels etc).
+	- All the code understands number of channels, variable unit sizes and
+	  multiple frequencies. This information is deduced from codec
+	  information. This includes mix and statistics...
+	- Added hooks for up and down sampling of remote participant decoded
+	  audio.
+	- Cleaned up include file mess. Now each source file includes only
+	  required headers. In the process of doing so I cleaned up a few
+	  interfaces so parts of the code that do not need to know about
+	  structures don't see the definitions and work with pointers.
+	- Various old and new bug fixes :-)
+	- Probably some more changes that I can not remember now as I didn't
+	  bother to write them down as I was doing them ;-)
+	- Reimplemented repair code from previous release and left hooks for
+	  pitch repetition and pattern matching. Now repair is multi-channel
+	  and multi-freq.
+	- Centralized allocation of rx_queue_element's.
+	- Added CD input support
+	- Assorted bug fixes to the original UI
+	- Add reception quality chart to the original UI
+	- Fix encryption code on little-endian machines (again)
+	- Cleanup RTCP code and headers
+	- Many changes to the conference bus (Mbus) code
+	- Assorted bug fixes to the transcoder
+	- SGI version now sets initial volume to something sensible
+	- Incorporated Luigi's mods to FreeBSD driver
+	- Added Pattern Matching repair
+	- Fix loopback of RTP packets
+	- Modified rules_based_silence to work at rates other than 8K.
+	- Add balloon help
+	- Fix RTP header validation for packets with P bit set [Bill Fenner]
+	- Fix transcoder timing (RTCP packets are sent much too often:
+	  loopback problem...)
+	- Fix freeing of units held in the receive buffer, when an RTCP BYE
+	  packet is received.
+	- Seems that FreeBSD (unlike the rest of the known universe...) has
+	  a SO_REUSEPORT, which we need to set if we're doing TTL zero
+	  multicast. Sigh.
+	- Fixed timer code - works with all freqs that divide into 96000.
+	- Added channel coding functionality - it should now be possible
+	  to slot in any scheme.
+	- Reimplemented redundancy to comply with new channel coding regime.
+	- Added interleaving.
+	- Fix decoding of encrypted packet (no longer blocks...)
+	- Fix encryption code on little-endian machines (again, again!)
+	- Fix fragment size on Linux
+	- Added header extension support.
+	- Remove LBL conference bus support (exercise for the reader: write
+	  an Mbus to LBL conference bus bridge, to allow device trading...)
+	- Add binding for Control-Button-1 to mute individual participants
+	- Add lip-sync support
+	- Major UI rewrite
+	- New silence detection algorithm.
+	- Fix parsing of RTCP SR/RR packets on little-endian machines
+	- Fix of decoding path - repair works again now.
+	- Separated out cushion code (cushion.[ch]) and cleaned a little.
+	- Separated out the UI update code from the Tcl/Tk maintainence code.
+	- Modularise Mbus code
+	- Stereo (?)
+	- Time code simplified.
+	- Multi-channel silence suppression.
+	- Misordered packets counted.
+	- Remove NET_MUTES_MIKE and MIKE_MUTES_NET options. We now require
+	  a full duplex audio device to operate. This should not be a
+	  problem, since such hardware is readily available for all
+	  platforms we care about (and some we don't...).
+	- Minor memory allocation optimization for native units and mbus
+	  block_alloc replacing xmalloc for fixed size allocations.
+	- Modularisation of silence detection and voice activity code.
+	- Transmit buffer simplification.
+	- Changes labels on preferences panel to match sdr, since it makes
+	  sense that way, and the old labels were broken dammit! (and I
+	  don't care if they were the ones Windows uses....)
+	- Remove flakeaway options (Cadbury's must hate us...)
+	- Create RTCP database entries for new sources when we find them
+	  in SR/RR packets, rather than ignoring them.
+	- Fix operation with -no_ui. This is not very useful though...
+	- Hack the RTCP decryption code to accept encrypted packets from
+	  vat, even though vat sets the padding bit incorrectly, and gets
+	  the length of encrypted SDES packets off by one.
+	- Fix source address checking in the mbus code
+	- Added sampling options to transmission menu.
+	- Added destruction code to coders and channel coders.
+	- Make sure the random number generator is initialised before use.
+	- Rejigged code to allow hot swapping of sampling format mid-session.
+	- Fix RTCP reporting interval, when running at other than 8kHz
+	- Change of RTCP reporting interval when freq changes.
+	- Replaced old AGC code.
+	- UI tweaks, bitmaps, titling, about panel.
+	- Playout point limits now optional.
+	- Allow for remote ui, enable with "-ui <mbus_address>"
+	- Watch for transmitter device clock being slower than ours and
+	  corrective action.
+	- Cushion decrease only when not playing audio - stops interruptions.
+	- Allow `wait for mbus init message' on startup with "-wait"
+	- Redundancy new format - mods to rfc to match implementation.
+	- Removed auto_path initialisation from init.tcl and aatk.tcl.
+	- Interleaver (mk II) no longer halts the system (or works).
+	- Powermeters frequency independent.
+	- Own activity only sent when changing state.
+	- Activity changes no longer refresh participant info.
+	- Playout buffer size monitoring and device drift bias correction.
+	- Fixed problem with codec recognition at startup when rate not 8k.
+	- UI displays correct encoding with interleaver and redundancy.
+	- Wrote a configure script
+	- Graceful failure/stasis when device not available.
+	- Bitmaps match audio i/o ports at start up.
+	* Released to CAIRN/MECCANO for testing, 8 June 1998
+
+v3.2.1  - Assorted tweaks to the UI
+	- Cleanup mbus_encode_str interface
+	- a small change to function rx_source_playout in mbus_engine.c
+	- fixed bug in ui_update_video_playout
+	- lip-sync support
+	- play audio packets in no lip-synced mode when no RTCP SR is received
+	  even if lip-sync is enabled. When SR is received, switch to lip-sync
+	  mode
+	- bug in mbus resend code fixed.
+	- Cleanup parsing of command line options
+	- Add patches for HP-UX 10 from Dirk Meersman
+	- Remove HP-UX 9 compatibility: it makes the code cleaner, and
+	  HP-UX 9 is completely obsolete anyway. Now if only we could do
+	  the same with SunOS 4...
+	- Only allow lip-sync to be enabled if we are not running on the
+	  Mbus base c  hannel
+	- Table for format conversions.  Windows ACM PCM Converter support.
+	* Released for testing, 10 July 1998
+
+v3.2.2  - Fixes for command line option parsing
+	- Improvements to playout calculation (less togged)
+	- Increased audio in receive buffer to be 1 cushion's worth. This
+	  makes handling "fast" senders easier and also reduces togged units
+	- tcl2c now strips comments, 10-40% size improvement on tcl strings
+	  (UNIX only).
+	- Removed fixed tables for g711 conversion.  Now calculated at start
+	  time.
+	- Increased minimum pitch length in pattern match repair (less pings).
+	- Add support for TclX, and profiling of the tcl code
+	- Attempt to optimize some of the more intensive Tcl routines
+	- Reduce rate of power-meter updates, since profiling shows that is
+	  an expensive operation.
+	- Added playout buffer size to participant info
+	- Converted jitter into ms for ui
+	- Increased initial estimate of jitter, and codec independent
+	- Reduced average playout delay, now just add/subtract cushion surplus
+	  instead of whole cushion length to playout, i.e. we add exactly
+	  the right amount.
+	- Rearranged files for more portable Windows configuration.
+	* Released for testing, 17 July 1998
+
+v3.2.3  - Added button in the UI to enable sound externalisation (the
+	  actual 3d audio code is not present yet).
+	- Fix display of loss rates in the participant list ("loss diamonds")
+	- Updated sdr plugin (in sdr v2.5a4)
+	- Change initial silence detection threshold, such that we transmit
+	  until the detector has trained rather than suppressing.
+	- Win32 release configuration added.
+	- Added reset of saved settings when version change detected.
+	- Minor change to low jitter playout handling.
+	- Fix parsing of -K/-crypt options
+	- Endian fix to RTCP packet forwarding code
+	- Remove TclX support (as part of the planned move to using the
+	  Tcl plus-patch to cleanup the initialisation code).
+	- Fixed playout point calculation problems.  Playout buffer should
+	  now have same order as source timestamps, no overlaps allowed.
+	- Powermeters tweak.
+	- Move to winsock2.h, in preparation for IPv6 port. NOTE: This now
+	  requires that winsock2.dll is installed on Windows.
+	- Win32 ACM G.723.1 code.
+	* Release for testing, 24 August 1998
+
+v3.2.4  - Cleanup networking code
+	- Cleanup RTCP code
+	- Only send an RTCP BYE packet if the number of members is less
+	  than 50. This means we just-about comply with the latest RTP
+	  draft, although we should really implement BYE reconsideration.
+	- Fixed bug introduced into repair code.
+	- Increased powermeter rate and added table to improve vu performance.
+	- RTCP timeout frequency independent.
+	- Got ride of speaker table code. Highlighting is now from when playout
+	  buffer created destroyed.
+	- Fix GSM codec
+	* Release for testing, 10 September 1998
+
+v3.2.5  - Fix transmission mute/unmute
+	* Release for testing, 10 September 1998
+
+v3.2.6  - Move all system specific configuration options and includes into
+	  config_unix.h and config_win32.h to ease porting. Should also
+	  simplify things when we move to a common code library among the
+	  UCL tools.
+	- Audio loopback in hardware for Solaris/SunOS and Windows.
+	- Moved select on audio_fd out of networking code.
+	- Centralized code that destroys and empties playout buffers.
+	- Added "net mutes mike" and called it "Silence Suppression".  Works
+	  off of creation and destruction of playout buffers.
+	- Assorted UI tweaks
+	- Move to using our own version of tcl/tk on unix machines, to
+	  avoid the problems with initialisation scripts being sourced
+	  from other installed versions.  We no longer compile the tcl
+	  or tk initialisation scripts into rat.
+	- Merge GSM codec into codec_gsm.[ch]
+	- Modularize networking code
+	- Mbus code now batches messages before transmission, to reduce
+	  the number of packets sent
+	- Update Mbus command set to better match latest specification
+	- Add 3d audio code
+	- Add IPv6 support under Windows NT 4.0 using the stack from
+	  Microsoft Research (http://www.research.microsoft.com/msripv6/)
+	* Release for testing, 9 October 1998
+
+v3.3.0  - Audio interface revamp.  Support for multiple cards.
+	- Osprey SunVideo Plus audio support added (buggy).
+	- PCA audio support added on FreeBSD (builtin speaker).
+	- Documented audio interface.
+	- Replaced audio_fd with audio_device to emphasize this is no longer
+	  a file descriptor.
+	- Added null audio interface for devices not attainable.
+	- Safety net when opening an interfac   - Fix LSR and DLSR in our reception report packets (maybe)
+	- Fix muting of individual participants
+	- Update mbus command set
+	- Added virtual externalisation (sound source emanating from outside
+	  the head even when listened to with headphones)
+	- File loading and saving added.
+	- Playout calc refinements.
+	- Repair schemes given queryable interface (like other modules).
+	  mbus and ui updated to reflect this.
+	- Fix for fatal bug in channel decoder arising from duplicates and
+	  interaction with playout buffer.
+	- Merge in IPv6 fixes from Maryann Maher
+	- 3D rendering code added, debugged, and integrated into UI.
+	- Audio device interface changes - input format may differ
+					   from output format.
+					 - format conversion in audio
+					   interface if dev does not
+					   support required format.
+	- Win32 RTCP tool includes OS version of end host.
+	- Win32 Multiple audio device support bug fixed.  Uses matching
+	  card and mixer.
+	- Fix stereo powermeters (work).
+	- Convert to use the common code library
+	- Disposed of old packet queues, now use simpler buffer and no
+	  nasty macros.  (rx queue still there, when there's time it goes..)
+	- Re-wrote codec interface.  Codec wrappers appear in files
+	  codec_*.[ch]
+	  and codec implementation files appear in cx_*.[ch].
+	- codec_t axed and replaced with codec_id_t.  Look at codec.h for
+	  manipulation functions.
+	- Codec repair functions appear in codec interfaces rather than
+	  reair function.
+	- Removed all RAT dependencies from codec code, repair code, 3d code,
+	  appart from a few basic types i.e sample, audio format, and
+	  coded_unit.
+	- Disabled all channel coding except vanilla.  All to be
+	  re-implemented.
+	- Added ability to read number of samples written to and read from
+	  audio device.
+	- Made audio device id's (handles) mirror codec id's.  We now always
+	  have a valid handle for a device, and can read/write to it.
+	- Removed interfaces.[ch].
+	- Replaced receive.[ch] with source.[ch] and replaced playout
+	  buffer code with playout.c.
+	- Rewrote channel coder interface to be cleaner.
+	- Removed unnecessary dependencies in rate and channel conversion code.
+	  Conversion routine now uses coded_units for input and output.
+	- Moved codec_state_list onto source structure and channel_coder_state.
+	- Fixed dependencies in repair and 3D rendering code. Their only
+	  dependencies are now the codec files.
+	- Made converter interfaces same as audio device and codec interfaces.
+	- Changed 3d rendered to always output stereo.
+	- Fixed potential problem in 3D code where the audio frame size being
+	  passed is smaller than the delay the render applies causing samples
+	  to be shifted over the stack.
+	- Added tests directory where people can through tests for modules if
+	  they care.  So far have added test_3d.c which found the last problem
+	  and native.c used to fix bug in native coding types.
+	- Fixed nasty bug in 3d rendered where at high sampling rates the delay
+	  size is larger than the storage buffers between intervals causing
+	  memcpy to overlap src and dst areas.
+	- Fixed bug in vdvi frame peek code and sizes returned by
+	  vdvi_{en,de}code.  All codecs pass tests in test_codecs.
+	- Wrote timestamp code that allows easy comparison between multi-rate
+	  clocks.
+	- Added first order differencing for sequences of timestamps so
+	  wraps in 32 bit clocks do not cause discontinuities in modulo m
+	  clocks and vice versa.
+	- Added iterators to playout buffer.
+	- Updated transmitter to use playout buffer with multiple iterators
+	  instead of former custom list code.
+	- Modified channel code and source code for playout buffer iterators.
+	- Fixed widgetabbing (due to missing tk library scripts).
+	- CNAME now uses the IPv6 host address, if running on IPv6.
+	- Move mbus heartbeat into the common code library.
+	- Repair and duplicate handling put back into new decode path.
+	- Separated sample ops into audio_util.[ch].
+	- Added MMX mixing code for Win32.
+	- Moved bias control out of session pointer and into transmitter.
+	- Removed support for multiple mbus channels.
+	- Removed unnecessary include files from assorted source files.
+	- Cleaned up device reconfiguration code.
+	- Fixed l16 48k stereo name - was incorrect.
+	- Renamed certain functions to make names congruent to group of calls.
+	- Removed input_mode and output_mode from session_struct.
+	- Restored playout buffer length reporting functions.
+	- Added source flush if mix fails (source sample rate change).
+	- Added repair failure code, should only fail if sample rate changes.
+	- Added codec list option (-codecs) for launcher apps to know what is
+	  available.
+	- Added payload mapping from UI.
+	- Added Sun's G726 public reference version.
+	- Redundancy encoder and decoder re-written but not linked in yet,
+	  needs debugging.
+	- Rewrote win32 mixer interface code.  No longer use string matching
+	  with pre-defined english names.  Still have to use some string
+	  matching but only between names various controls from the driver
+	  spit out.  Took circuitous route since no two driver vendors
+	  implement mixer functions in same way.  Seems to be stable now.
+	- Modularized audio ports so that device interfaces now return
+	  audio_port_details_t that contains string name and unique
+	  input/output identifier to be used for port selection.
+	- Modified UI to have transmit and receive checkbuttons and replaced
+	  bitmaps with string names since we cannot guarantee win32 port
+	  names and changing between bitmaps and strings in the ui is ugly.
+	- Fixed transmitter bug where temporary audio_buffer iterator
+	  was not being freed.
+
+v4.0.0  - Update license agreement -- we now use a standard Berkeley style
+	  license for all files. See the file LICENSE for details.
+	- Removed output_gain and input_gain from session_struct.  Should
+	  fix output gain going to zero on some updates.
+	* Released 31 March 1999
+
+v4.0.1  - Clarify license -- the LICENSE and COPYRIGHT files contradicted
+	  each other, we now only have one file (COPYRIGHT) which is a
+	  standard Berkeley style license.
+	- Fixed problem with pseudo-devices (auddev_null and
+	  auddev_pca) that use gettimeofday to calculate how many samples are
+	  available.  They were failing to include number of samples included
+	  in "device" buffer left over from previous reads.  This meant device
+	  time was always slow.
+	- Go back to ssrc rather than cname in UI for indexing entries.
+	  Issues running multiple instances on single machine otherwise.
+	- Playout buffer skew adjustment added so when playout buffer
+	  deviates from expected size because source clock is different and
+	  signal is temporarily silent an adjustment is made.  Only intervals
+	  when adjustment made is when packet has arrived in current
+	  processing interval so we do not adapt at the end of talkspurts.
+	- Made repair and converters communication like that of input and
+	  output ports in ui.  i.e. tool.rat.converters.flush,
+	  tool.rat.converters.add, tool.rat.converter.  Defaults for repair
+	  and conversion are first type of module.
+	- Issues with mixing multi-rate fixed.  Existing code was not
+	  accounting properly for different sample rates when positioning new
+	  mixer head time.  This probably got introduced when the time
+	  stamp method got changed since it definitely worked before (honest).
+	- Added status bar's to file window.  Hopefully clearer what is going
+	  on.  Attempted fix button of state problems.
+	- Caching of previous talkspurt jitter.  Previously a fresh guess was
+	  made at the start of each spurt.
+	- source_get_playout_delay now includes audio we believe to be in
+	  device buffer.
+	  So buffer shifts now work with cushion...hopefully.
+	- Added counter for skew adjustments to make adjustments less
+	  aggressive.
+	- Win32 mixer corrections - mixer control code now works with all
+	  the cards we have. Let this be the end of it!
+	- Added read_and_discard for reading all available packets and
+	  discarding them. This is needed because there is a long delay
+	  between opening the socket and the first read (due to ui startup,
+	  audio device startup, etc...).  As a result lots of audio was
+	  getting buffered at receiver with continuous sources at start up.
+	- Fixes to linux audio driver
+	- Fixed initial playout delay estimation.
+	- Stopped interaction between skew ajustment and repair.
+	- Assorted bug fixes to the UI
+	- Attempt to get participant highlighting correct
+	- Blending on samples dropped because of skew not quite there.
+	- Added unsigned 8 bit to device formats and added to conversion
+	  routines.
+	- Partial SoundBlaster support on FreeBSD (out s16, in u8).
+	- Initial code for the move to using the RTP library - not used yet
+	- WAV file MAKEFOURCC bug fixed for non-Win32 little endian machines.
+	  All platforms should be able to read WAV and AU files.
+	- Changed skew adjust back so it invokes repair to cover would-be
+	  gap.
+	- Enhanced sample drop during skew detection.  Period that can be
+	  be dropped determined by pattern matching samples in frame to
+	  to have samples dropped in.  Then blend in start of what would
+	  have been played to match point.  Quality improvement
+	  more than compensates for extra cpu cycles.
+	- Redundancy encoder working again (95% confidence :-).
+	- Added dismiss button to file dialog.
+	- Add support for DES encryption to the mbus (on by default).
+	- Fix encryption.
+	- Fix UI codec failure when changing sampling config and no codec
+	  with same friendly name exists.  Also fix for redundant codec
+	  displayed when primary updated.
+	- Add timestamp to mbus packet headers
+	- Reorder initialisation sequence, to handle the new requirement
+	  that the mbus can only send reliably to those entities we've
+	  received a message from previously. This probably means that
+	  the wait-on-startup hack for ReLaTe is broken, but we don't care
+	  since the entire initialisation sequence needs redoing anyway
+	  (the Bremen PSTN-to-Mbone gateway needs more fine grained control
+	  than is possible with the current startup sequence).
+	- Fixed size of participant window so user can see 2 layers of
+	  encoding when redundancy in use.
+	- Fixed channel coder reconfigure issue when changing sampling mode.
+	- The name of the RAT binary now includes the version number.
+	- Fix muting of individual participants.
+	- Added G726-16 using code from Marc Randolph's patch on comp.speech.
+	- Add sdr plugin (not tested)
+	- Fixed decoding preference problem when redundancy used.
+	- Fixed source muting (we discard the packets in statistics, rather
+	  than not mixing source).
+	- Removed -drop command line option.
+	- Moved codecs that had CODEC_PAYLOAD_DYNAMIC into unassigned and
+	  dynamic range so they are available in transmission panel.
+	- Removed half-duplex cards appear in devices list on Win32.
+	- Fixed ui update when switching channel coder.
+	* Released 14 May 1999
+
+v4.0.2  - Added message box for win32 users who launch with no command line
+	  options, giving usage instructions.
+	- Added WSACleanup() to shutdown win32 sockets nicely.
+	- Fix inet_aton(), which prevents a crash on startup on Windows NT
+	  service pack 3 and some versions of Windows 95.
+	* Released 15 May 1999
+
+v4.0.3  - Fix compilation with v1.2 of the Microsoft Research IPv6 stack.
+	- Catch WM_DELETE for preferences window. Reported by Atanu Ghosh.
+	- Check address and port is valid in command line parsing so
+	  we don't dump core later.  Reported by Lorenzo Vicisano.
+	- Unrecognized options are ignored, but no longer stop processing other
+	  options. This means that "rat-4.0.3 -f pcm -t 64 224.1.2.3/1234" now
+	  sets the TTL correctly, even though the -f is unrecognized, meaning
+	  that we can start rat via sdr. Reported by Terry Gibbons.
+	- Fix occasional assertion failure in mix.c:133 `len < ms->buf_len'
+	  (it looks like the condition in the assert is off by one, should
+	  be 'len <= ms->buf_len'. If this doesn't fix it, there's a check
+	  around line 242 of mix.c which sets things up so we don't overflow
+	  the buffer - we just decrease the amount we write by one sample
+	  there instead. Reported by Roy Bennett and others.
+	- Fix payload type mapping for PCMA-16K-Stereo.
+	- Mapping for existing rat/vat codec names.
+	- Primary payload type mapping using -f.
+	- Secondary payload type mapping using -f also.
+	- Fix restoration of previous audio port settings from saved values.
+	- Separated sound file handling into sndfile_wav.[ch] and
+	  sndfile_au.[ch]
+	- Added support for default sndfile extension if none specified.
+	  Win32 -> wav, others -> au.
+	- Added support for writing alaw and ulaw.
+	- Updated man page.
+	- Added sndfile_raw.[ch] for handling raw files.
+	- Added sndfile_valid_format.
+	- Fixed spurious debugging code in the windows audio driver which
+	  would cause an infinite loop if activated (rare, but could happen).
+	- Split converter code up into convert_*.[ch] and added convert_types.h
+	- Fixed repair when next unit on playout buffer is less than expected
+	  length away.
+	- Compilation fixes for Irix 5.3 contributed by David Balazic.
+	- Some linux audio drivers, in particular the ES1370 used in the
+	  SoundBlaster PCI 128, don't support /dev/sndstat. Rewrite the
+	  query functions to work with /dev/mixer instead.
+	- Handle known skew in the audio sampling rate for those linux audio
+	  drivers which report it.
+	- Added 'high quality' converter, sinc filter.
+	* Released 2 June 1999
+
+v4.0.4  - Add ability to receive on one port yet send to another, requested
+	  by Henning Schulzrinne. Usage: "rat addr/rx_port/tx_port"
+	- Compilation fixes for Irix 6.5 contributed by Bob Olson.
+	- Fix core dump caused by calling sndfile_write_audio with buffer
+	  length of 0.
+	- Fix core dump when called with invalid command line arguments,
+	  reported by Marcus Meissner.
+	- Fix passing of encryption key across mbus, reported by Ed Whelan.
+	- Remove support for the -wait option. This means we can't work with the
+	  ReLaTe interface anymore but, once the split into multiple processes
+	  is complete, ReLaTe will be able to drive the media engine directly.
+	- Remove most of the transcoder support - it didn't work anyway, and
+	  needs to be reimplemented from scratch.
+	- Start the split into multiple processes: media engine, user interface
+	  and controller.
+	- Added basic layered channel coder. Usage: rat -l n <address>/<port>
+	  <address>/<port>, where n = no of layers and there is an address and
+	  port for each layer. Only works with the WBS codec at present, and
+	  probably not very well at that.
+	- Move the code to load and save settings into the media engine, and
+	  out of the user interface.
+	- Fixed WBS codec so that it works with different endian machines.
+	- Added hash table to settings_load.
+	- Fixes for 64 bit IRIX from Peter Orbaek
+	- Some codecs' default payload values clashed with RTP spec:
+	  PCM-16-K Stereo was 76, now 124; GSM-16K was 72, now 118;
+	  GSM-32K was 73, now 119; GSM-48K was 76, now 123.
+	* Released 7 July 1999
+
+v4.1.0  - Fixed slow memory leak reported by Emmanuel Duros.  Vanilla
+	  decoder was not checking all pb_add functions returned success
+	  and so pointer was getting trashed.
+	- Fix RTCP RR DLSR field when reporting on a source from which
+	  we've received no SR packets.
+	- Changed drop preference for incoming packet buffer overflows.  Now
+	  drop incoming packet rather than earliest packet in buffer - makes
+	  source packet processing better ordered.
+	- Remove address sanity checking for the layered coder from the
+	  command line parser: it should be done when the socket is opened
+	  since that makes the code address format agnostic.
+	- Added network_exit.
+	- Added per source gain control.  Now appears in participant panel
+	  on audio pane.  Suggested by Jerry Isdale.
+	- Fixes for the Detexis Musica IPv6 stack on Windows NT.
+	- Send rtp.source.cname messages to the video tool when lip-sync is
+	  enabled, so it can match sources up to those in the video session.
+	- Cleanup documentation of the audev_*.c files
+	- Fix loading of preferences: powermeter, lip-sync
+	- Fix the fileboxes on the Windows release version.
+	- Fix spurious transmission of tool.rat.lecture.mode() mbus messages
+	- Fix spurious transmission of rtp.source.active() mbus messages when
+	  we are sending.
+	- Fix (hopefully) assertion failure in the mixer when trying to zero
+	  blocks longer than the buffer.
+	- Improved layered channel coder, thereby making it incompatible with
+	  4.0.4.
+	- Added persistent database pdb.[ch].
+	- Moved render_3D_data from the rtcp database into persistent database
+	  as first step towards using common rtp code.  Lots of other fields to
+	  do, but looks to work in principle.
+	- Add RPM spec file for RedHat Linux. Based on that contributed by
+	  Stephen Adler
+	- Convert to using the RTP code in the common library.
+	- Fixed getenv not checking for null string after getenv in
+	  auddev_osprey.c.  Reported by Dirk Kutscher
+	  <dku@informatik.uni-bremen.de>.
+	- Add playout_calc.[ch].
+	- Add ts_mul and ts_div to keep playout calc clean.
+	- Change default units per packet to 1, since PIPVIC2 says that the
+	  end to end delay is too large otherwise.
+	- Rewrite the reception quality matrix
+	- Consistency changes: audio device and repair query now consistent
+	  with the majority of interfaces.
+	- More consistency changes: channel_get_coder now consistent with
+	  other interfaces.
+	- Add ability to mtrace between participants by clicking on the squares
+	  in the reception quality matrix
+	- Split setting load between .RTPdefaults and .RATdefaults.
+	- Add cutesy popup boxes to the reception quality matrix
+	- Add device buffer occupancy check to auddev_luigi to try to fix
+	  sb16 problems.
+	- Add toged and cont_toged back.
+	- Move source_check_buffering into rtp_callback.
+	- Fix mixer handling overlapping blocks.
+	- Changed win32 audio read and write methods, added audio event to
+	  reduce CPU usage.  Fixed handling of non-blocksize writes.
+	- Modified auddev_null on Win32 to use WaitForSingleObject rather
+	  than Sleep on Win32.  Reduces CPU considerably.
+	- Added colour to powermeters.
+	- Add fixed size packet buffer to make for easy discards when media
+	  engine has blocked for an inordinate period.
+	- Added source_get_bps (bits per second :-).
+	- Removed gain setting stuff from luigi_audio_open.  Problems reported
+	  by Bill Fenner and code purpose is defunct.
+	- Complete split into media engine, user interface and controller
+	  processes. Only works on Unix at present, still debugging the
+	  Windows port.
+	* Released 5 October 1999
+
+v4.1.1  - Added transcoder audio device.  Contributed by Michael Wallbaum
+	  <wallbaum@informatik.rwth-aachen.de>
+	- Now send RTP BYE packets on exit
+	- Fixed converter table initialization.  Was not initializing
+	  interpolation and extrapolation correctly after last consistency
+	  update.
+	- Unrolled loops in extrapolation converter.
+	- Replaced divisions in interpolation converter that were not powers
+	  of two with a multiplication scaling factor and a power of 2
+	  denominator.  Improves performance 3-4 for upsampling by 3,5,6.
+	- Fixed 2 step sample rate conversion support.
+	- Fixed Windows port.
+	- Initialize sp->cur_ts in main_engine, before tx_start.  Should fix
+	  occasional assert failure during transmitter startup.
+	- Put cont_toged check into source_process packets.  Added check for
+	  cont_toged in rtp_callback.
+	- Added time constants and replaced lots of ts_map32 functions with
+	  them in source.c.
+	- Rewrite initialization and rendezvous code between the controller
+	  and the user interface and media engine. This should remove many
+	  race conditions and generally clean things up and make them more
+	  reliable.
+	- use mbus_rendezvous_waiting() and mbus_rendezvous_go()
+	- do a real handshake between controller and the subprocesses
+	- Fix parsing of many command line options. NOTE: many of the options
+	  are parsed in a backwards incompatible manner now, to make the code
+	  cleaner.
+	- Tuples for mbus command switches in mbus_{control,engine,ui}.
+	* Released 2 November 1999
+
+v4.1.2  - Added echo suppression back, it fell out of code base at some point.
+	- Fix ui sending input and output gain values before it's got values
+	  from audio engine.  Was happening because scale widget invokes
+	  -command option when created.  Now we don't send gain info until
+	  we've heard some from engine.
+	- Add signal handler to main_control.
+	- Add back default port 5004.
+	- Fix luigi_audio_drain to reset, sync, and trigger reading.
+	- Moved packet reception handling from rtp_callback to
+	  source_add_packet.
+	- Changed playout buffer length estimation to use transit times and
+	  average transit.  Previously used observations of playout buffer
+	  lengths, but this maybe unreliable due to packet losses.
+	- Revised skew adaptation.  Now compares transit time in use with
+	  transit average, instead of monitoring playout buffer length which
+	  is tainted by packet losses.
+	- Playout variable now refers to playout offset only.
+	- VAT style reduction in playout estimate when marker bit set.
+	- Playout recalc trigger when jitter > playout.
+	- Device reconfig no longer resets ports if device unchanged.
+	- Shuffled front panel.  Added bps field.
+	- Changed source processing to use next_played rather than last_played.
+	  Cleans some processing issues up and allows for codecs with
+	  non-constant frame durations.
+	- Added source_get_skew_rate to return relative skew.
+	- Added skew to stats panel.
+	- Made stats panel consistent with UI.
+	- Split reception panel into Decoder and Playout.
+	- Added note field for local user.
+	- Playout calc revisions:  only update transit if:
+		(a) source is new.
+		(b) source quiet for longer than transit_reset period.
+		(c) playout re-calc triggered by toged_cont.
+	- toged_cont is now no. thrown on ground in last 8 packets.
+	- Global change of integer types, and removal of compatibility defines:
+		u_int8  -> u_int8_t
+		u_int16 -> u_int16_t
+		u_int32 -> u_int32_t
+	  and the same for the signed varients.
+	- And change them all to be uint32, etc
+	- Packet spikes now accounted for in packet processing.  Transit
+	  average and playout not updated during spike period.
+	- Playout panel now displays spike info also.
+	- Mbus updates from Markus Germeier, which fix compatibility with
+	  the Uni Bremen implementation:
+		- mbus.bye() signals an entity when it leaves. (mbus.quit
+		  commands an entity to leave)
+		- Generate and work with 64 bit DES keys. Generate parity bits
+		  for key.
+		- mbus_heartbeat(m, 1) should send an mbus.hello() every
+		  second and not every two seconds
+		- HMAC-MD5 should read HMAC-MD5-96
+		- Honor the MBUS environment variable for the MBUS
+		  configuration file
+		- The TZI Mbus implementations generate spaces in
+		  configuration file, which mislead the UCL Mbus to dump core.
+		- Allow Spaces in .mbus
+		- Address must be unique
+		- Delete failed reliable messages if err_handler is present
+	- Fix uninitialized use of session->last_update in RTP code
+	- Fix assertion failures in RTP library when sending RTCP packets
+	- Recognize, but ignore, profile specific extensions to RTCP SR/RR
+	  packets
+	- Update RTCP reporting interval calculation
+	- Implement reverse reconsideration of RTCP reporting interval
+	- Implement encryption in the RTP code
+	- Fix redundancy decoder
+	- Fix path searching when starting subprocesses
+	- Add patch matching segment insertion when correcting for slow sources
+	- Migrated Makefiles and Headers to use autoconf
+	- Fix crash on exit
+	- Fix system name in tool version
+	- Add version number to mbus config file. Should prevent crashes
+	  when we update the format of that file.
+	- Set thread priority of media engine to THREAD_PRIORITY_ABOVE_NORMAL
+	  on Windows.
+	- Fix CPU usage of UI
+	- Update to common library 1.0.10
+	* Released 13 December 1999
+
+v4.1.3  - Rename common library to libuclmmbase.a on unix
+	- Update RPM spec file
+	- Update installation instructions
+	- Fix "-t" option, to set the TTL. The v4.1.2 release would always
+	  send with TTL=15, making it useless for wide area.
+	- Fix assertion failures in source.c
+	- Cleanup code for updating SDES items in the UI
+	- Remove core files & directories on "make distclean"
+	- Add check audio in adjusted playout point packets can be played out
+	  and correct if would be dropped.
+	- Add failure return option for pattern matches used in skew detection.
+	- Add session_validate(), source_validate() and pdb_item_validate()
+	  debugging routines. These mostly just check a magic number stored
+	  in the structure, to check that the structure hasn't been totally
+	  corrupted. There's a lot of scope for extending them in future...
+	- Waveform repair schemes now use last available native coding.
+	- Minor decode path change.  Decode, sample rate conversion, 3d
+	  rendering, gain scaling, are all performed if no native coding
+	  available rather than individually test.  Fixes problems introduced
+	  with media_data duplication in playout buffer shift code.
+	- Various fixes for potential buffer overflows
+	- Update copyright notices to welcome in the new millennium
+	- Fix mbus address of the media engine (had a spurious space in
+	  instance:pid)
+	- Remove lip-sync command line option and toggle button in the user
+	  interface.
+	- Automatically enable/disable lip-sync when we detect a video tool
+	  via our mbus interface.
+	- Rewrite the lip-sync code to send our playout delay to the video
+	  tool. We send "rtp.source.playout(ssrc delay-in-ms)", which might be
+	  sufficient.
+	- Added back backwards compatible name mappings for command line
+	  parsing.
+	- Robustified command line parsing of codecs.
+	- Fix ordering of command line argument parsing.
+	- Accept -crypt as a synonym for -K.
+	- Add encrkey field to the session struct.
+	- Fix encryption key handling at startup.
+	- Fix saving of audioChannelParameters setting.
+	- Fix use of mbus structure after freeing it.
+	- Fix freeing of memory on shutdown.
+	- Add assorted debugging code.
+	- Fix reception of RTP packets with padding (this is what caused a
+	  crash when using the GSM codec with encryption).
+	- Update for changes in the mbus library.
+	- Add format conversions for a-law devices.
+	- Incorporated auddev_atm.c and wrote auddev_atm.h.
+	* Released 31 January 2000 [X3D SDK CDROM]
+
+v4.1.4  - Fix dependencies in Makefile for rpm target
+	- Fix handling of odd numbered RTP ports (pick next lower port).
+	- Fix loopback setting load and carry thru when changing device.
+	- Fix -version command line option.
+	* Released 1 February 2000
+
+v4.1.5  - Add support for ALSA audio drivers on Linux, contributed by
+	  Robert Olson of Argonne National Laboratory.
+	- Add rtt calculation to rtp_callback.c.
+	- Fix don't start mbus and processes if no command line args given.
+	- Add controller validation of command-line addresses before
+	  launching sub-processes.
+	- Fix controller only quits upon hearing byes from one of it's
+	  children.
+	- Add playout buffer debugging/validation code.
+	- Add engine parsing of sdes commands accept my_ssrc as an acceptable
+	  ssrc identifier.  Then control does not need to know to set name,
+	  etc, from command line.
+	- Add check in settings that sdes values read in are not already set.
+	- Add filter on rtt values to avoid displaying garbage values from rtp
+	  misimplementations.
+	- Fix participant muting (reported by Bob Olson).
+	- Correct size of pb->buf allocation in pktbuf.c.
+	- Fix slow memory leak in pktbuf (didn't free pb->buf).
+	- Removed unused variables from the session struct
+	- Add checks for sp->ui_on to the user interface dispatcher code.
+	  This has currently broken the user interface, but is needed to
+	  make the initialization sequence reliable.
+	- Major update to the initialization sequence
+		- media engine solicits for the user interface
+		- user interface requests state information from the media
+		  engine
+		- split ui.c into ui_send_*.c
+	- Load/save the note setting.
+	- Remove all traces of operating specific defines.  Configure no longer
+	  subsitutes operating system.
+	- Fix @OSTYPE@ in SDES Tool field (broke with latter).
+	- Add SIGCHLD to main_control to shutdown process tree when child
+	  processes die in a timely manner.
+	- Fix shutdown sequence.
+	- Patch G711 A-law, Sun's reference implementation had a few glitches
+	  and you only notice when speaking with real h/w implementations.
+	- Update README.mbus, giving documentation of how to remote control
+	  RAT using the message bus interface, and how to replace the user
+	  interface by one of your own choosing.
+	- Fix two step sample format conversion assertion failure.
+	- Fix device sample conversion layer freeing already freed pointer
+	  when swapping between devices with and without layer.
+	- Add RTCP DELETE messages trigger deletion corresponding pdb entry
+	  and source (if relevent).
+	- Tweak source ageing, to fix problems with users being hilighted
+	  after they finish speaking. Problem occured if less than 50
+	  packets arrived in a talkspurt.
+	- Save settings now passes through settings file, replacing entries
+	  RAT has update values for, and then appends entries not in settings
+	  file. Requested by Frode Kileng.
+	- Add use of username when no RTPdefault exists for participant name.
+	- Fix handling of audioInputMute in RATdefaults. Reported by
+	  Frode Kileng.
+	- Fix rtp.source.active for local user in response to rtp.query(),
+	  didn't highlight local users transmit state.
+	- Update SDR plugin.
+	- Transfer string associative array code out of settings.c into new
+	  common library files asarray.[ch].
+	- Fix -allowloopback option.
+	- Add controller checks for child process termination on Win32.
+	- Add message loop and watch for WM_DESTROY to controller.  Will now
+	  shutdown engine and ui when Win32 task manager sends these.  NB,
+	  Visual Studio debugger terminates processes and still leaves
+	  children running.  AFAIK there is no way for children to spot this,
+	  i.e. WaitForSingleObject watching process does not appear to work
+	  for children watching parents.
+	- Use _vsnprintf for snprintf functionality on Win32.
+	- Fix "make tgz" target to include the sdr plugin
+	* Released 14 February 2000
+
+v4.1.6  - Fix Windows port
+	* Released 15 February 2000
+
+v4.1.7  - Update ALSA detection in configure script
+	- Fix display of names when SDES NAME is not known (fallback to
+	  CNAME or SSRC in that order).
+	- Add support for the rtp.addr.query() mbus message to media engine.
+	- Remove support for the tool.rat.codec.details() mbus message.
+	- Add support for the
+		tool.rat.codecs.request()
+		tool.rat.codecs.flush()
+		tool.rat.codecs.add()
+	  mbus messages.
+	- Add audio clip support to balloon help.
+	- Tidied mixer interface and cleaned session_struct out.
+	- Fix mixer wrap handling for multi-channel.
+	- Fix default device if not present in saved settings.
+	- Add support for rtp.source.mute ("ALL" 0|1), which is much more efficient
+	  than iterating all sources over the mbus.
+	- Fix handling of WM_DELETE_WINDOW for the about box
+	- Fix handling of WM_DELETE_WINDOW for participant popup boxes
+	- Remove all "Dismiss" buttons - just close the windows instead
+	- Add balloon help button to the main window, moving the application name
+	  to the title bar
+	- Partially fix processing of Tcl events in the UI during the rendezvous
+	  with the media engine
+	- Partially fix audio processing on windows 2000
+	* Released 24 February 2000
+
+v4.1.8  - Partially fix layered codec (recognises multiple addresses on
+	  command line but doesn't send to all of them)
+	- Slay zombies when children die
+	- Add repeat+ repair type.  It does standard repeat and then reverse
+	  blends samples from the end of the previous frame with the start
+	  of this frame.  Perhaps reduces some glitching.
+	- Add README.reporting-bugs describing "How to Report Bugs Effectively"
+	- Update to the ALSA support, contributed by Bob Lindell of ISI
+	- Add local tone generator.
+	- Add pointer to the RAT users mailing list <rat-users@cs.ucl.ac.uk>
+	  an open list for discussion of issues relating to RAT.
+	- RTT calculation fix (ntp32_sub was broken).
+	- Add checks to main processing loop for liveness of controller
+	  process.
+	- Add checks for sibling and parent process in ui and engine so proc's
+	  don't wait for messages that are never going to come.
+	- Change skew correction code to use audio_blend rather than repeat
+	  procedure in situ.  Fixes a memory corruption bug.
+	- Add null handler for RX_APP to rtp_callback, circumvents abort call.
+	- Add linear8 to sndfile import and export functions.
+	- Add handling to sinc_converter for conversion chunks that are
+	  smaller than hold buffer size.  We can now convert a sample at a
+	  time if desired rather than blocks of at least the duration of the
+	  hold buffer.
+	- Add manual silence detection algorithm.
+	- Add UI and settings for silence detection algorithm alternatives.
+	- Add sample rate and channel converter to sound file importer.
+	- Add support for m*11025 native encoding types.  Although RAT does
+	  not support these sampling rates, one of the sample rate converters
+	  supports conversion from m*11025 to n*8000.
+	- Fix noise during sample insertion from skew adaptation.
+	- Fix fatal mix error when downsampling.  Trim length did not
+	  compensate for the sample rate, causing trim length to wrap and
+	  attempt to remove zillions of samples.
+	- Fix mixer rounding error in timestamps vs samples.  Would
+	  periodically fail mix_verify by 1 otherwise.
+	- Add installer for the Unix ports. This displays the copyright notice,
+	  and gets confirmation from the user that they accept the conditions,
+	  before extracting the .tar.gz file. Use "make installer" to build and
+	  then distribute the rat-4.1.8-installer binary only.
+	- Add transit estimate reset when device format changes at either end.
+	- Add settings to default to first device when device in settings file
+	  does not exist on host.
+	* Released 20 March 2000.
+
+4.1.9   - fix configure script handling of X_CFLAGS during broken header tests
+	  reported by Atanu.
+	- remove variable component (e->playout) from spike threshold in
+	  source processing, believe this is part of the bad spike messages
+	  (160>nnnnn).
+	- Changes to Win32 driver read code to remove race condition (audio
+	  callback occuring as audio being taken from list of ready buffers).
+	- Move participant database clean up into session_exit.
+	- Destroy local file player and tone generator when reconfiguring
+	  device.
+	- Changes to Win32 driver interface write code.  Appears to resolve
+	  problems with a few troublesome cards.
+	- Replace puts with bgerror where appropriate in ui script.
+	* Tagged 30 March 2000 (not released).
+
+v4.2.0  - Fix mixer writing to new head position so it mixes multiple streams
+	  again!
+	- Fix phase skips of tone generator.
+	- Add RTP flush after device reconfiguration.
+	- Clean up and fix controller command line parsing.
+	- Remove timers.[ch] to give a single internal representation of time.
+	- Add creation time to mix_create and remove mixer re-sync function.
+	- Fix MMX mix bounds calculation.
+	- Add sample rate factor into cushion.
+	- Change initial cushion value to be more conservative.
+	- Fix entries in cushion histogram being entered when less than
+	  minimum allowed cushion.
+	- Remove second audio_rw_process in engine main loop.  Process only
+	  blocks for audio nowadays.
+	* Released 5 April 2000.
+
+v4.2.1	- Fix handling of 8bit PCM .WAV files (unsigned 8bit, not signed).
+        - Fix shuffle participants not to print newline if last entry.
+	- Fix parsing of -t flag, was mis-coded as -ttl in layering command
+	  line parsing changes in 4.2.0.
+	* Released 6 April 2000.
+
+v4.2.2  - Catch mbus initialization failure and warn user in ui, control,
+	  and engine.
+	- Round ttl to maximum of 127.
+	- Change parse_args_early in main_control.c to pass over all args.
+	  (problem reported by Didier Lambllais).
+	- Add -N,-E,-P,-L for sdes item setting from command-line (name, email,
+	  phone, location).
+	- Fix -f codec communication from controller to engine.
+	- Break controller address and option parsing so options are not
+	  communicated to engine before rendezvous has occurred.  Otherwise
+	  options can be lost due engine's settings_load occuring
+	  after rendezvous.
+	- OSS (Linux) audio driver updates from Stuart Levy <slevy@ncsa.uiuc.edu>
+		- Should make mixer controls work with the Sound Blaster
+		  Live! cards
+		- Update behaviour of the line-in controls, to hopefully
+		  work better with AC97 compatible cards, if you see a
+		  difference in the behaviour of line-in please let us know.
+		- Update behaviour of output gain controls, to set all outputs.
+		  This probably needs more work, let us know if it breaks anything
+		  (the entire OSS audio output control is broken - we need to deal
+		  better with the output mixer...)
+	- SGI audio driver updates from Stuart Levy <slevy@ncsa.uiuc.edu>
+		- Add "APanel" input source. When selected, rat carefully
+		  avoids ever specifying the input source to the audio
+		  library; thus whatever source is selected by the SGI
+		  "apanel" program applies. Use this if you have problems
+		  with rat switching to the built-in microphone on O2
+		  machines.
+		- If anyone could contribute support for the new (post
+		  Irix 6.3) audio library, we'd be grateful...
+	- Fix library ordering in makefile (reported by Stuart Levy)
+	- Document configure options which may be needed to build on Irix
+	  in INSTALL.TXT
+	- Fix RTP SR timestamps and RTP jitter calculation. Reported by
+	  Robert Olson.
+	* Released 17 April 2000.
+
+v4.2.3	- Change the session struct to be a two element array in main_engine.c
+	- Change all references to sp-> into sp[0]-> in main() of the media engine
+	- A few trivial changes to the initialization sequence, in support
+	  of the transcoder. There are a number of things which will hinder
+	  this:
+	  	- mbus_rendezvous_waiting() and mbus_rendezvous_go() are
+		  incompatible with another mbus needing to run in parallel.
+		- some parts of the code are non-reentrant (i.e. use static
+		  variables) and will have to be fixed
+	  it's probably not too bad, though. All are wrapped in #ifdef
+	  IS_TRANSCODER, for now.
+	- Update OSS (i.e. Linux) audio device detection code
+		- Better card detection and probing
+		- On systems where the audio driver supports two half-duplex
+		  devices, rather than a single full-duplex device (e.g. the
+		  NM256) we attempt to pair them into a form usable by rat.
+		  Reported by Thierry Turletti.
+	- Workaround failure to get host IP address when setting the RTP
+	  CNAME (we use user@127.0.0.1 as the CNAME in this case). Reported
+	  by Joe Love.
+	- Add support for "-logstats" option, to log RTP and codec statistics
+	  to a file. Requested by Anna Watson.
+	- Update "make installer" target
+	* Released 3 May 2000
+
+v4.2.4	- Further updates to OSS (i.e. Linux) audio support
+	- Further updates to support the transcoder
+		- Add -T option to media engine to enable transcoder operation.
+		  This will need a custom user interface and controller.
+		- Remove the IS_TRANSCODER defines.
+	- Update installation instructions
+	- Fix buffer overflow when reading from "No audio device". This was
+	  the cause of the
+		"playout.c:86: pb_validate:Assertion 'pb->magic==0x83838383'
+	  error reported by Christa Wenger, Marcos Bedinelli and Fang Yuan.
+	- Remove spurious calls to tx_process_audio() and tx_send() from
+	  the main loop.
+	- User interface hides the main window is hidden until it is finished
+	  initialising. This should prevent errors due to manipulation of the
+	  user interface before the system has finished initialisation, as
+	  reported by Peter Parnes.
+	- Fix reception of packets with an RTP header extension. Reported by
+  	  Peter Parnes.
+	* Released 16 May 2000
+
+v4.2.5	- Fix assert failure in auddev_trans.c, contributed by Jakub Segen
+	- Fix audio device pairing with the OSS driver, in those cases where
+	  there is only a single mixer channel. Reported by Thierry Turletti.
+	- Rewrite code to rendezvous with the controller in the media engine,
+	  to support future transcoder operation.
+	- Cleanup main_control.c - code moved into process.c and cmd_parser.c
+	* Released 16 June 2000
+
+v4.2.6	- Compilation fixes for Win32 contributed by Marcin Michalak.
+	- Merge ALSA fixes from Robert Olson
+	- Merge OSS fixes for AC97 based soundcards from Robert Olson:
+		"I went ahead and did the (more) proper fixes for AC97
+		cards. I don't have a reliable way to detect which cards
+		are AC97-based, so there's currently a hard-coded list of
+		them in the OSS code:
+		   "OSS: AudioPCI 97 (STAC9708)",
+		   "OSS: AudioPCI 97 (CRY13/0x43525913)",
+		These two are the one that Jay told me about and my ES1371
+		card. If you have a card that you think this will help for
+		(probably SBLive falls into this category, and any of the
+		ES1371 based cards), you can force rat into AC97 mode by
+		setting the OSS_IS_AC97 environment variable to 1, in bash:
+			 export OSS_IS_AC97=1
+		or in tcsh:
+			 setenv OSS_IS_AC97 1
+		If this makes things work for you, please mail the output of
+			 cat /dev/sndstat
+		to rat-users@cs.ucl.ac.uk and we can add your card."
+	* Released 30 June 2000
+
+v4.2.7	- Split main() in the controller into two parts: one for normal
+	  operation as an audio tool, one for operation as a transcoder.
+	- Add extra debugging code to transmit.c
+	- Fix buffer overflow in tx_unit_create()
+	- Add missing initialization of reversal buffer for repetition plus
+	  (problem reported by Lingfen Sun).
+	- Only perform audio bias removal for live capture, not when reading
+	  from a file. This fixes the problem reported by Paxton Smith, where
+	  excess RTP packets are sent when playing from a file.
+	  	- Note that there are still some extra packets sent, due to
+		  the pre- and/or post-hang in the voice activity detection
+		  code. This makes for a much nicer sound for speech (since
+		  we have continuous audio during short (<200ms at present)
+		  silence periods, but does cause some spurious transmission
+		  in this case. The following #define's in parameters.c can
+		  be changed to adjust this behaviour:
+			#define VAD_SIG_LECT     40
+			#define VAD_SIG_CONF     60
+			#define VAD_PRE_LECT     60
+			#define VAD_PRE_CONF     20
+			#define VAD_POST_LECT   200
+			#define VAD_POST_CONF   200
+	- Fix reading of .wav files
+		- The last unit of audio data was not being sent, which also
+		  contributed to Paxton Smith's problem.
+	- Fix bias removal for stereo signals.
+	- Fix bias removal maintenance ( >> != / ).
+	- Fix arithmetic overflow problems in the bias removal code.
+	- Remove debugging code in auddev_null.c which caused the NULL audio
+	  device to (incorrectly) generate non-silent a-law audio.
+	- Detect whether FreeBSD driver is newpcm or luigi.  There are
+	  differences in detecting full duplex caps and handling mixer
+	  settings.  See comments in auddev_luigi.c for an explanation.
+	- Change ts_t to timestamp_t.  ts_t is a system defined type
+	  on Solaris8.
+	- Cleanup and document the receiver source processing (starting
+	  with the source_process() function and friends).
+	* Released 6 August 2000
+
+v4.2.8	- Mbus address of media engine now contains session identifier (this
+	  is always zero when running as an audio tool, but the transcoder
+	  has sessions 0 and 1).
+	- Fix bug in mbus transmit code which would cause messages to have the
+	  same sequence number as the preceeding ack.
+	- Update controller initialization sequence to handle transcoder.
+	- All fatal_error() messages are now prefixed with the RAT_VERSION
+	  text, rather than the argv[0] application name.
+	- Fix RTP header extension code (patch from Jori <jori@lumumba.luc.ac.be>)
+	  as part of RTP interoperability tests.
+	- FreeBSD 4.1 doesn't support binding to an IPv6 multicast address, must
+	  bind to in6addr_any instead (reported by Shirasaki Yasuhiro).
+	- Fix validation of RTCP packets with padding (reported by Vladimir Brauner).
+	- Fix padding octet count in RTCP packets sent with padding (Vladimir Brauner).
+	- Fix RTCP timer reconsideration (Vladimir Brauner).
+	- Minimal transcoder support: the media engine can transcode, although it
+	  is very buggy. The controller supports just enough to test the media
+	  engine, the UI does not support transcoding yet.
+	* Released 22 August 2000
+
+v4.2.9	- Fix spurious assertions in source.c -- I think (hope?) this will fix the
+	  source.c:1588: source_process: Assertion `md->nrep < 5 && md->nrep > 0' failed.
+	  crash reported by Bob Olson and Justin Pietsch.
+	- Add other_session field to the session struct, and fix transcoder to make
+	  calls to rtp_add_csrc() and rtp_del_csrc(), which will eventually support
+	  pass through of RTCP. This changes the size of the session struct, and
+	  means that you'll have to "make clean" after updating.
+	- Modularize user interface: bargraph and chart
+	- Fix labelling of transcoder input/output ports
+	* Released 8 September 2000
+
+v4.2.10 - Added auddev_newpcm.[ch] with newpcm style mixer control.  Includes
+	  support for loopback and preservation of mixer settings so mixer is
+	  returned to original state upon exit. [oh]
+		  Note: both driver interfaces (luigi, newpcm) are pulled in
+		  by configure and this is possible whilst luigi pcm and
+		  newpcm maintain the same function call interface.  This may
+		  break in future.  Both are necessary because mixer operation
+		  is not consistent between the two interfaces.
+	- Catch SIGTERM and SIGHUP on unix (Robert Olson)
+	- Update Windows project file ratui.dsp (Paxton Smith)
+	- Add extra debugging code to sanity check the playout time: since
+	  4.2.9 fixed the md->nrep assertion failures in source.c, we now
+	  see problems due to poor playout time calculation.
+	- Compilation fixes for installer under Red Hat 7's weird gcc varient.
+	* Released 1 November 2000
+
+v4.2.11	- Fix port restoration when changing device (Shirasaki Yasuhiro)
+	- Remove assert that made duff port restoration core dump in newpcm,
+	  just check port is correct range, if not print warning.
+	- Add check that requested sampling rate is within device
+	  capabilities on newpcm.  Driver does not do bounds checking when
+	  setting rate and will mis-report actual rate when a duff rate has
+	  been set (reported by Lars Eggert).
+	- Break up newpcm writes to n separate writes of blocksize rather
+	  than one big write as current newpcm debug code complains if
+	  this is done.
+	- Fix erroneous debug messages for gain settings in newpcm.
+	- Change newpcm_audio_open() to use SNDCTL_DSP_SETFRAGMENT from
+	  SNDCTL_DSP_SETBLKSIZE.  The latter creates just 2 frags in
+	  secondary buffer and this is not enough for cushion fill levels.
+	- Fix breakage due to "gcc 2.96" shipped with Red Hat Linux 7
+	- Remove inline math routines from cx_gsm.[ch] since they broke
+	  with some versions of gcc (signed vs unsigned comparison).
+	* Released 8 January 2001
+
+v4.2.12	- Better diagnostic message when mbus config file cannot be locked.
+	- Remove SNDCTL_DSP_SYNC from newpcm reset function as it can block.
+	- Change G726-32 packing to fit AVT profile.  Because of packing order
+	  difference this and future versions will not be interoperable with
+	  previous RAT releases.
+	- Set initial cushion size to zero to force audio_rw_process to write
+	  an empty cushion of audio after device is opened.
+	- Change mix_put_audio return value when gap detected.  Was returning
+	  TRUE which indicates mixer and source formats not compatible, this
+	  caused source media and channel buffers to be wrongly flushed.
+	- Remove debug sample that made concealment distinctly audible.
+	  Should not have gone into code base.
+	- Re-jig source_process so that frames generated through loss
+	  concealment get passed onto mixer.  This must have broke during
+	  tidying.
+	- Remove repeat+ from loss concealment schemes, didn't add anything.
+	- Add L8 encoding.
+	- Change pktbuf to use playout buffer (better use of code).
+	- Reset transit histories when source created.  This should fix:
+		- Sometime see messages of the form:
+			"source.c:767 Spike (160 > 2708390)"
+		  and hear nothing.
+		- If a receiving stream contains a lot of jitter and
+		  out-of-order packets it crashes sometimes. (jitter around
+		  1000 ms and random out-of-order). Reported by Peter Parnes.
+		- Occasional crashes due to "too many blocks allocated" with
+		  many allocations in channel_types.c:29, channel_types.c:34,
+		  playout.c:188 and source.c:893.  Seems to be due to packets
+		  being received off the network, but never played out.
+		  Reported by Angel Mateo, and also observed at UCL. Not
+		  something I've found a way of reproducing.
+		- Occasional weird behaviour of the playout buffer, where
+		  sources are buffered for several _minutes_ before being
+		  played out? Reported by Steven Dawson on the CAIRN list.
+	- Reduce source packet buffer size.
+	- Change all G726 packings to gratuitously painful little endian.
+	- Increase initial cushion estimate to 2 * min cushion size.
+	- Enable 11025 sample rates and codecs.
+	- Fix detection of incompatible conversions, M * 11025 <-> N * 8000
+	  is not supported.
+	* Released 14 January 2001.
+
+4.2.13	- Fix spurious assert in G726 decoder
+	- Fix G726-40 unpack (bits per sample mis-represented as 3!)
+	- Fix sinc converter selection bug.  Should fix:
+		(a) Crash in convert_sinc.c:
+			convert_sinc.c:134: failed assertion
+			convert_sinc.c:122: failed assertion
+			util.c:87: _block_alloc: Assertion `size > 0' failed.
+		    reported by Greg Herlein.
+		(b) Another crash in convert_sinc.c:
+			convert_sinc.c:1107: sinc_upsample_stereo:
+			Assertion `out == dst + dst_len' failed.
+ 		    reported by <thavaqos@yahoo.com>
+	- Change linear converter to use same structure arrangement as sinc
+	  converter and fix linear converter selection bug (derived from
+	  convert_sinc.c).
+	- Fix reverse reconsideration of RTCP interval
+	- Mark entries in the RTP database as active senders if we get an
+	  RTCP SR packet from them.
+	- Added support for G.728 encoding and decoding.  See README.g728
+	  for build instructions and comments.
+	- Add support for non-AC97 mixers on FreeBSD's newpcm.
+	- Add support for new device names under FreeBSD-5 (audio<m>.<n>)
+	- OSS/Linux audio driver now uses /dev/dsp rather than /dev/audio,
+	  since some drivers don't support /dev/audio.
+	- Cleanup OSS/Linux audio driver code
+	- Added check for device busy vs device not configured in newpcm
+	  probing.
+	- Fixed re-use of "thedev" string in newpcm_audio_open that caused
+	  device name to be trashed.  Reported by Lars Eggert.  Thanks!
+	- Fix RTCP bandwidth fraction estimation (Timur Friedman)
+	- Add support for displaying RTCP SDES PRIV items (we send a test
+	  item also).
+	* Released 3 March 2001
+
+v4.2.14	- Add "-noui" option to start the media engine without user interface
+	- Fix CSRC handling (Patch from ivo.sedlacek@anfdata.cz)
+	- Fix uninitialized field in SDES PRIV handling (Robert Olson)
+	- Fix G726-24 and G726-40 out by one in codewords unpacked.
+	- Rename rtp_callback to rtp_callback_proc to avoid name clash
+	  following recent common library changes.
+        - Fixed all MSVC warnings about implicit type conversions.
+        - Update MSVC project files to reflect new paths in common library.
+	- Update configure to remove need for patching in FreeBSD ports
+	  collection.
+	- Add shell script target "rat" as target in Makefile.  Again to
+	  make FreeBSD ports less effort, like zero :-D.
+	* Released 6 April 2001
+
+v4.2.15	- Fix common include path for use with standard Tcl/Tk (Pekka Savola)
+	- Fix handling of undefined PATH variable, which caused a crash on
+	  startup in some cases (patch from Pekka Savola).
+	* Released 13 April 2001
+
+v4.2.16	- Fix PATH handling
+	- Fix so that we no longer send an RTCP BYE if we leave the session
+	  before sending any other packets.
+	- Fix initial estimate of average RTCP packet size.
+	- Implement RTCP BYE reconsideration.
+	- Fix RTCP transmission interval.
+	- Fix handling of probationary sources in the RTP code (a source is
+	  no longer treated as probationary if we've received RTCP packet
+	  from it).
+	* Released 24 April 2001
+
+v4.2.17	- Fixes to auddev_oss.c from Robert Olson
+	- Fix includes for <time.h> (should fix Red Hat 7.1 compilation)
+	- Fix IPv6 support (Kris Hasler)
+	* Released 18 May 2001
+
+v4.2.18 - IPv6 fixes in common
+        - Config for Windows2k IPv6 stack
+        * Released 25 May 2001
+
+v4.2.19 - Fix off-by-one error when removing half duplex audio devices in
+          the OSS driver (Eric Gerlach and Robert Olson)
+	- Fix generation of rat shell script (David Martinez)
+	- Fix assert failure with Repair=None (Jakub Segen)
+	- Add initial IXJ audio driver for QuickNet devices (contributed
+	  by James MacLean <macleajb@EDnet.NS.CA>)
+	- Fixes to device pairing for SB Live (Robert Olson)
+	- Fix complience with draft-ietf-mmusic-mbus-transport-06.txt
+	  (patch from Lars Fischer)
+	- Fix handling of EAGAIN in auddev_oss.c (James MacLean)
+	* Released 21 June 2001
+
+v4.2.20	- Fix forgotton malloc in auddev_oss.c mixer allocation (patch from
+	  Eric Gerlach)
+	- Fix configure script to detect PhoneJack audio devices
+	- Add PHONE type to audio_types.h
+	- Fix misquoted mbus message in ui_send_rtp.c (Eric Gerlach)
+	* 24 September 2001
+
+v4.2.21	- Fix FreeBSD support to work with 4.5-RELEASE (Orion Hodson)
+	- Fix SoundBlaster Live! support on win32 (Chris Greenhalgh)
+	- Accept (and ignore) unknown SSRC in SDES (Chris Greenhalgh)
+	- Add . to path in rat script. Helpful for folks working on RAT
+	  without dot in their path.
+	- Change sample rate variable types from uint16_t to uint32_t
+	  and add 96kHz timebase (Orion Hodson)
+	- Update configure script to better support IPv6 (Suzuki Shinsuke)
+	- Fix count of CSRCs in mixer
+	- Fix compilation on alpha (David Martinez)
+	- Fixes for MacOS X and Win32 (Bill May)
+        - Explicitly set send/recv buffer sizes (1Mbyte)
+	- Assorted performance tweaks to RTP code (Colin Perkins)
+	* 15 April 2002
+
+v4.2.22	- Fix compilation on Debian/SPARC (David Martinez/Petter Reinholdsten)
+	- Reduce device buffer to 1/8 second on Win32 (Justin Binns)
+	- Fix compilation on Win32
+	* 23 July 2002
+
+v4.2.23	- Fix memory leak with duplicates (Winston Dang)
+	- Change include header on FreeBSD as machine/soundcard.h no longer
+	  exists in -CURRENT, but sys/soundcard.h exists in -STABLE and
+	  -CURRENT (Kris Kennaway).
+	- Update solaris driver to support the AUDIODEV environment
+	  variable, needed for SunRay systems (Frederic Vecoven)
+	- Remove unneeded includes from auddev_sparc (Frederic Vecoven)
+	- updated RPM spec file to install SDR plugin and to use the
+	  Makefile for installing files.
+	* 01 April 2003
+
+v4.2.24 - Added a rtp_promiscuous_mode setting to .RTPdefaults
+          TRUE = creates sources before RTCP has been received
+          FALSE = ignores sources that haven't been identified
+        - Moved load_settings_early to before init of mbus otherwise some
+          settings won't be initialised before receving mbus commands
+        - Fixed payload types for L16-44K-Mono/Stereo (Nicholas Humfrey)
+        - Fixed error in man page for silence supression option
+        * 10 September 2003
+
+v4.2.25 - Fix gcc3.3.x pointer alias warnings.
+	- Change vnsprintf replacement to use vsprint rather than sprintf.
+	- Fix top-level catch diagnostic in ui_audiotool.tcl.
+	* 12 January 2004
+
+v4.2.26	- Fix compilation on MacOS X 10.3.4
+	- Update DVI ADPCM codec <paul_j_barber@yahoo.co.uk>
+	- Discard empty RTP packets
+	- Fix crash if getpwuid() fails <Grant.Likely@gdcanada.com>
+	- Add MacOS X audio driver, contributed by <juraj.sucik@cnl.tuke.sk>
+	- Add NetBSD audio driver, contributed by Brook Milligan at New Mexico
+	  State University <brook@nmsu.edu>
+	- Add Linux ALSA 0.9+/final audio driver, contributed by Steve Smith
+	  at the University of Sydney <ssmith@vislab.usyd.edu.au>
+	- Fix RTP packet structures.  The struct used to decode RTP had 
+	  the 'interesting' implementation feature of putting a bunch of
+	  management variables at the front and calculating the offset in
+	  memory to the actual data. Unfortunately this completely failed
+	  to take account of such things and pointer alignments and structure
+	  padding, and only worked in 32 bits by coincidence.  It completely 
+	  fails when compiled for 64-bit.  Reworked this to be a bit more 
+	  explicit about what it's doing and using the standard offsetof 
+	  macro to calculate offsets. Patch from Steve Smith at the
+	  University of Sydney.
+	- Add note to INSTALL.TXT explaining that you MUST use the UCL
+	  modified versions of Tcl/Tk with rat.
+
+v4.2.27	- First release under SUMOVER project includes 4.2.26 stuff as that 
+          version wasn't quite properly released.
+        - Fixes to ALSA driver for wider hardware support and newer style
+          hardware (e.g. Emu10k style cards). Also added support for accessing
+          the 'default' ALSA device so ALSA plugins may be used (e.g. dmix etc)
+          Still not working perfectly.
+        - Added new *.vcproj Visual Studio Project files
+        - Various updates for compilation on gcc4
+	* 13 April 2006
+
+v4.3.00	- Second release under SUMOVER project 
+	- Newish look: Modified UI so that addr/port/ttl is at top
+	- Added security padlock icon to address bar when crypto enabled
+	- Modified rx_rtp_addr() call so that rat can dynamically rebind 
+	  to new address/port without having to restart. 
+        - Further fixes to ALSA driver for newer style hardware (e.g. Emu10k
+          style cards). Updated mixer controls so they worked
+          Still not working perfectly.
+	- Created NSIS installer script for creating Windows installer
+	- Updates to auddev_win32 use CriticalSection control for driver
+	  callback accesses and audio read.
+	* 13 September 2006
+
+v4.3.01	- Fix TTL handling for unicast connection
+	- Change default TTL to 127
+
+
+
+
+
+TODO -- They're features not bugs dammit!
+----
+
+- Assorted audio driver problems:
+	- Broken auddev_pca with adding of audio interface conversion code.
+	  FreeBSD 3.1 pca audio does not seem to work anymore.
+	- SunVideoPlus interface code does not work properly.  The driver Sun
+	  distributes only works in 8k mono.  MMAC produce the card and wrote
+	  a driver for Sun: an exceptionally buggy and unstable driver.
+	  MMAC now has a better version now, but expect you to pay for the
+	  developer kit to access features.  $1200 for a card that does not
+	  perform as advertised.  The marketing blurb states it has G728,
+	  G722, and "CD Quality" audio: it may do, but you can't access them.
+	- SGI O2's don't have autosensing audio interface selection like
+	  Indy's.
+	- OSS/Linux driver is buggy
+		- Thierry still has problems with the NM256 card and device
+		  pairing
+		- Some cards are not detected correctly
+- Update the 3d audio rendering code
+	- should decimate when using sampling rates other than that for which
+	  it was originally designed for.
+	- could use finite precision maths for better performance (eliminate
+	  type conversions).
+- sndfile routines should use conversion functions in audio_fmt.c, not their own.
+- Channel coders need intelligent bail out fn's for when units overflow
+  (rare, but real problem).
+- UI lets you select packets larger than the MTU, which can't be sent
+- Reimplement transcoder.
+	- Convertors need to be moved into the session struct, rather than being
+	  statically allocated.
+	- settings load/save code needs to be updated for the transcoder. We should
+	  save settings into a different set of files, and save each side of the
+	  transcoder individually.
+- Add support for conversion between m*8000 and n*11025
+- Sample based codecs should accept frame lengths of 0-200ms, not just
+  multiples of frame lengths in tables.  Should add codec_is_sample_based
+  test and data to codec tables and relax receiver sanity checking so that
+  sample based frames do not have to be n * codec__peek_frame_size.
+- Should use the empty RRs coming back from receivers who are not seeing
+  traffic, and display this in the loss matrix.
+- Layering is broken (hasn't been updated for multiple processes, etc)
+- Weird interaction with rat-3.0.x -- seems that we can generate packets
+  which some instances of rat-3.0 won't play. You get some people in the
+  session who's tools report receiving your data, but they don't play it
+  out. Suspect we're hitting the limitations of the old playout algorithm,
+  rather than a specific bug, and the correct solution is to get everyone
+  to update to rat-4.x
+- Handling of SSRC collisions is broken
+- Rework media engine initialization, so we can query it before sending
+  rtp.addr()
+- when rat starts it turns of "playback-mute" on the mic input which
+  gives feedback for the mic. Muting it via the audio control turns of the
+  feedback. Note that record-mute and playback-mute is not the same thing.
+  Reported by Peter Parnes. [Depends on feedback settings and platform, oh].
+- Add ability to change RTP sessions whilst rat is running. Requested by
+  lots of people (Robert Olson, Joerg Ott, etc).
+- When weak RTP validation is enabled, spurious sources can be
+  added to the database (from the CSRC area of a packet?). Reported
+  by Xiaotao Wu <xiaotaow@cs.columbia.edu>
+- Crashes on WinNT if another version of Tcl/Tk is installed on the machine?
+  Reported by Didier Lamballais <Didier.Lamballais@irisa.fr>.
+- Excessive end-to-end delay on Windows? Gerry Wolfson. [The scale of delay
+  is order of magnitude greater than observed on UCL machines, direct sound
+  sound driver anyone...].
+- Crash when playing .wav files? <thavaqos@yahoo.com>  [Can't Replicate???]
+- Build problems on Windows: some of the *.dsp/*.dsw files have unix end of
+  line characters which cause problems for some versions of VC++? Reported
+  by Fulvio Risso <risso@polito.it>
+

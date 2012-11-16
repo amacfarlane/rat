@@ -1,0 +1,87 @@
+Robust-Audio Tool installation instructions
+===========================================
+
+Copyright (C) 1995-2001 University College London
+All rights reserved.
+
+This software is distributed under license, see the file COPYRIGHT for full
+terms and conditions.
+
+
+Installing pre-compiled binaries
+--------------------------------
+
+Binary releases of RAT are standalone, and do not require the installation
+of other libraries to function correctly.
+
+The Windows 95/98/NT binary is a self-extracting installer, double-click on
+its icon and follow the instructions.
+
+The Unix versions are distributed as tar archives compressed with gzip. The
+archive contains documentation files and binaries which can be installed as
+follows:
+	tar zxvf rat-4.2.3-solaris2.7.tar.gz
+	cd rat-4.2.3
+	./rat-4.2.3-installer
+at this point you will be asked to read the license agreement. If you accept
+the license terms, a second tar/gzip archive will be generated. You should
+then install this using:
+	tar zxvf rat-4.2.3-solaris2.7.tar.gz
+	install -m 755 rat-4.2.3       /usr/local/bin
+	install -m 755 rat-4.2.3-ui    /usr/local/bin
+	install -m 755 rat-4.2.3-media /usr/local/bin
+replacing "4.2.3-Solaris" with the version number and platform of your choice.
+Note:
+  1) The front-end binary ("rat-4.2.3" in this example) can be renamed if
+  desired. The application will not work if the other binaries are renamed.
+  2) All three binaries must be installed in a directory in your search path.
+If you have the sdr program, you should also install the supplied sdr plugin
+according to the instructions for sdr.
+
+
+Compiling from source code
+--------------------------
+
+To compile RAT from source you MUST download and compile the following
+additional packages:
+
+	The UCL common multimedia code library
+	The UCL distribution of tcl-8.0
+	The UCL distribution of tk-8.0
+
+These can be downloaded from http://www-mice.cs.ucl.ac.uk/multimedia/software
+or, if you have access to the UCL CVS server, you should fetch the modules
+common, tcl-8.0 and tk-8.0.
+
+*** You MUST use the modified versions of tcl-8.0 and tk-8.0 from UCL. ***
+*** The standard Tcl/Tk distribution WILL NOT work correctly with rat. ***
+
+On Windows 95/98/NT you should install the packages in c:\src. The entire
+package can be built using Visual C++ 6.0 with the rat.dsw workspace, there
+is no need to separately compile common, tcl-8.0 and tk-8.0.  Ensure that
+you select the correct configuration when compiling (rat win32 release, for
+example). To compile the IPv6 version, you need the Microsoft Research IPv6
+stack; this must be downloaded separately.
+
+On Unix you should build the tcl-8.0, tk-8.0 and common packages before
+attempting to compile rat. You should then build rat as follows:
+	./configure
+	make
+The compilation process requires that all four packages are installed below a
+common directory. A distribution binary package can be built with the command
+	make tgz
+The configure script takes the following options:
+	--enable-debug		build a binary with debug symbols
+	--enable-debug-mem	build a binary with memory debugging
+	--enable-profile	build a binary with profiling information
+	--enable-bounds		compile with array bounds checking (requires a
+				modified gcc which supports this)
+Further options may be available - use "./configure --help" for details.
+
+On SGI Irix, you may need to specify the "--x-libraries=/usr/lib32" option
+to configure.
+
+If you need to modify the source to build RAT on your platform, please send
+these modifications to rat-trap@cs.ucl.ac.uk for incorporation in future
+releases.
+

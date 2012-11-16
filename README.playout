@@ -1,0 +1,61 @@
+>>>Quick question on rat: does your adaptive playout buffer algorithm take
+>>>the redundancy into account? I would expect it would do something like:
+>>>compute the playout delay as normal, and then add N*packetization_delay,
+>>>where N is the number of packets in the past covered by the redundancy
+>>>in a packet. Is that basically right?
+>>
+>>To avoid modifying the playout calculation for each channel coder the
+>>channel coders may add the extra delay in their decode stage.  We have
+>>two buffers in the receiver: one for media data and one for channel
+>>data.  The same playout time is used for both.  When a channel coded
+>>unit reaches playout it is passed to the channel decoder.  The
+>>channel decoder may or may not output a media unit.  If it does it is
+>>decoded and played.  In the case of the redundant decoder there is
+>>some internal buffering inside (N * packetization_delay) to ensure the
+>>redundant data can be used.
+>
+>What is a channel coder in this context? Are you talking abut the
+>redundant codecs?
+
+There is a generic framework for channel coders.  We currently have
+redundancy and layered, and used to have interleaving, though it was
+removed for some re-engineering and I have not had time to add it
+back.  It should work with parity and Reed-Solomon also.
+
+>Wouldn't the additional buffering need to be in the playout buffer of
+>the main codec?
+
+Right, there are two playout buffers, one for the channel coded data
+and one for the media data.  The channel coder can output media units
+with any playout offset it chooses.  The story in the case of
+redundancy goes as follows: let the channel unit (redundant packet)
+playout time be Tc, then media units are output at:
+
+        Tm (i) = Tc + max_offset + i * frame_duration
+
+where Tm(i) is the output time of media frame, i, arising from the
+channel unit.
+
+>My question is also how this amount and the playout
+>delay computed from network jitter are used - do you add the
+>n*packetization delay to the playout delay computed from jitter?
+
+The playout delay calculation has some caveats, but it is basically 3
+* jitter as calculated at the arrival time of the first packet in the
+talkspurt.
+
+Caveats are:
+        1) with first packet received we have no jitter information so take
+	   minimum of 3 * frame_duration and 3 * 20ms.
+        2) if user has set bounds on the minimum and maximum playout delay,
+	   constrain playout to sit inside these bounds.
+        3) if lip synchronization is in use, use playout negotiated with
+	   video tool  (always >= jitter based playout calculation).
+        4) playout time of incoming audio overlaps with audio currently
+	   being played - push back.
+        5) playout delay is less than cushion, use cushion - cushion is
+	   estimate of how much audio is in device buffer to protect
+	   against process losing cycles in scheduler.
+
+>>There is no option to vary the amount of internal buffering for
+>>redundancy, but obviously it would be trivial to do.

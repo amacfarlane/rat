@@ -1,0 +1,575 @@
+dnl UCL RAT configure script.
+dnl $Header: /cs/research/mice/starship/src/local/CVS_repository/rat/configure.in,v 1.54 2004/11/16 14:39:36 ucaccsp Exp $
+dnl
+dnl Process this file with GNU autoconf to generate a configure script.
+
+AC_INIT(converter.c)
+
+AC_CANONICAL_SYSTEM
+
+AC_PROG_CC
+AC_PROG_CPP
+AC_PROG_RANLIB
+AC_PROG_INSTALL
+
+AC_HEADER_STDC
+AC_HEADER_SYS_WAIT
+AC_C_CONST
+AC_TYPE_SIZE_T
+
+VERSION=`cat VERSION`
+AC_SUBST(VERSION)
+
+# This is kind-of ugly, but necessary to get the OSTYPE to match those used
+# in earlier versions of rat (and, despite what rms thinks, I don't like my
+# system being identified as "linux-gnu". [csp]
+case "$host_os" in
+ 	*linux*   ) OSTYPE=Linux    ;;
+ 	*solaris* ) OSTYPE=Solaris  ;;
+	*freebsd* ) OSTYPE=FreeBSD  ;;
+	*netbsd*  ) OSTYPE=NetBSD   ;;
+	*irix*    ) OSTYPE=Irix     ;;
+	*darwin*  ) OSTYPE=Darwin   ;;
+	*         ) OSTYPE=$host_os ;;
+esac
+dnl AC_SUBST(OSTYPE)
+
+dnl The following two macros cause autoconf to complain.
+AC_C_BIGENDIAN
+AC_C_CHAR_UNSIGNED
+
+#------------------------------------------------------------------------------
+# GCC-specific warning flags:  Set these late since some tests won't build
+# with all these warnings enabled.
+#------------------------------------------------------------------------------
+if test "$GCC" = yes
+then
+        CFLAGS="$CFLAGS -W -Wall -Wbad-function-cast -Wmissing-prototypes"
+fi
+
+#-----------------------------------------------------------------------------
+# Check for various headers                                                 
+#-----------------------------------------------------------------------------
+AC_CHECK_HEADERS(stdint.h inttypes.h stropts.h sys/filio.h malloc.h bstring.h)
+AC_CHECK_HEADERS(sys/sockio.h)
+
+#-----------------------------------------------------------------------------
+# Check for missing declarations
+#-----------------------------------------------------------------------------
+AC_MSG_CHECKING([for kill declaration])
+AC_EGREP_CPP(kill, [#include <signal.h>],
+	AC_MSG_RESULT(present), [
+	AC_MSG_RESULT(missing)
+	AC_DEFINE(KILL_NOT_DECLARED)
+])
+AC_MSG_CHECKING([for gettimeofday declaration])
+AC_EGREP_HEADER(gettimeofday, sys/time.h, AC_MSG_RESULT(present), [
+    AC_MSG_RESULT(missing)
+    AC_DEFINE(GETTOD_NOT_DECLARED)
+])
+
+#-----------------------------------------------------------------------------
+# Check for libraries                                                       
+#-----------------------------------------------------------------------------
+AC_SEARCH_LIBS(socket, socket)
+AC_SEARCH_LIBS(inet_addr, nsl)
+AC_SEARCH_LIBS(dlopen, dl)
+
+AC_CHECK_FUNC(sin, MATHLIBS="", MATHLIBS="-lm")
+AC_CHECK_LIB(ieee, main, [MATHLIBS="-lieee $MATHLIBS"])
+AC_SUBST(MATHLIBS)
+
+#-----------------------------------------------------------------------------
+# Check for standard size types.  The defaults are only valid on some systems 
+# so we hope that <inttypes.h> exists when they're wrong.                   
+#-----------------------------------------------------------------------------
+AC_CHECK_TYPE(int8_t,  signed char)
+AC_CHECK_TYPE(int16_t, short)
+AC_CHECK_TYPE(int32_t, long)
+AC_CHECK_TYPE(int64_t, long long)
+
+#-----------------------------------------------------------------------------
+# Some systems have these in <stdint.h>, just to be difficult...
+#-----------------------------------------------------------------------------
+AC_CACHE_CHECK(for uint8_t in <stdint.h>, ucl_cv_uint8_t_in_stdint_h,
+        AC_EGREP_HEADER(uint8_t,
+                        stdint.h,
+                        ucl_cv_uint8_t_in_stdint_h=yes,
+                        ucl_cv_uint8_t_in_stdint_h=no))
+if test $ucl_cv_uint8_t_in_stdint_h = "no"
+then
+         AC_CHECK_TYPE(uint8_t,  unsigned char)
+fi
+
+AC_CACHE_CHECK(for uint16_t in <stdint.h>, ucl_cv_uint16_t_in_stdint_h,
+        AC_EGREP_HEADER(uint16_t,
+                        stdint.h,
+                        ucl_cv_uint16_t_in_stdint_h=yes,
+                        ucl_cv_uint16_t_in_stdint_h=no))
+if test $ucl_cv_uint16_t_in_stdint_h = "no"
+then
+         AC_CHECK_TYPE(uint16_t,  unsigned short)
+fi
+
+AC_CACHE_CHECK(for uint32_t in <stdint.h>, ucl_cv_uint32_t_in_stdint_h,
+        AC_EGREP_HEADER(uint32_t,
+                        stdint.h,
+                        ucl_cv_uint32_t_in_stdint_h=yes,
+                        ucl_cv_uint32_t_in_stdint_h=no))
+if test $ucl_cv_uint32_t_in_stdint_h = "no"
+then
+         AC_CHECK_TYPE(uint32_t,  unsigned int)
+fi
+
+#-----------------------------------------------------------------------------
+# The (?which?) library does not work with unsigned characters.
+# Force the compiler to use signed chars.
+#-----------------------------------------------------------------------------
+if test $ac_cv_c_char_unsigned = yes
+then
+        if test "$GCC" = yes
+        then
+                CFLAGS="$CFLAGS -fsigned-char"
+        else
+                case "$host_os" in
+                # I don't know when "-signed" was added to IRIX CC
+                # so err on the side of using it.
+                irix*)  CFLAGS="$CFLAGS -signed"
+                        ;;
+                # need e.g. --force-signed-chars=-signed
+                *)      AC_MSG_ERROR([I don't know how to force signed chars])
+                        ;;
+                esac
+        fi
+fi
+#  __CHAR_UNSIGNED__ will be defined; hope this is OK.
+
+# Check for missing functions                                                
+EXTRA_OBJ=
+AC_CHECK_FUNC(usleep,,
+	[EXTRAOBJ="$EXTRA_OBJ usleep.o"
+	 AC_DEFINE(NEED_USLEEP)])
+
+AC_CHECK_FUNC(snprintf,,AC_DEFINE(NEED_SNPRINTF))
+
+AC_SUBST(EXTRA_OBJ)
+
+#-----------------------------------------------------------------------------
+# Audio device selection, derived from host type.  Could be smart and probe 
+# what's there, but can't guarantee that build host has audio device(s).  RAT
+# probes devices at startup from those compiled in so this is not an issue
+# when re-distributing.
+#-----------------------------------------------------------------------------
+AUD_INC=""
+AUD_LIB=""
+AUD_OBJ=""
+
+case "$target" in
+*solaris*)
+	SUNAUDIOHOME="/usr/demo/SOUND"
+	O1KHOME="/opt/SUNWo1kp"
+	AC_ARG_WITH(sun-audio,    [  --with-sun-audio=DIR    specify Sun audio support home], SUNAUDIOHOME=$withval)
+	AUD_INC="$AUD_INC -I$SUNAUDIOHOME/include"
+	AUD_OBJ="$AUD_OBJ auddev_sparc.o" 
+	AC_DEFINE(HAVE_SPARC_AUDIO)
+	AC_ARG_WITH(osprey-audio, [  --with-osprey=DIR       specify Osprey (Sunvideo Plus PCI) support home], O1KHOME=$withval)
+	AC_CHECK_HEADER($O1KHOME/include/oti_audio_device.h,
+		[AUD_INC="$AUD_INC -I$O1KHOME/include"
+		 AUD_OBJ="$AUD_OBJ auddev_osprey.o"
+		 AC_DEFINE(HAVE_OSPREY_AUDIO)])
+	;;
+*linux*)
+	# Do we have telephony drivers?
+	AC_CHECK_HEADER(linux/telephony.h,[
+		AC_MSG_CHECKING([for recent telephony drivers])
+		AC_EGREP_HEADER(PHONE_CID, linux/telephony.h,[ 
+			AC_MSG_RESULT(present)
+			AUD_OBJ="$AUD_OBJ auddev_ixj.o"
+			AC_DEFINE(HAVE_IXJ_AUDIO)
+		],AC_MSG_RESULT(missing))
+	])
+	# Do we have ALSA?
+	AC_MSG_CHECKING([for ALSA driver])
+	AC_ARG_ENABLE(alsa,
+	[  --disable-alsa          disable ALSA driver],
+	[alsa=$enableval],[alsa=yes])
+	if test $alsa = yes ; then
+	    AC_CHECK_HEADER(alsa/asoundlib.h,[
+		    AUD_OBJ="$AUD_OBJ auddev_alsa.o"
+		    AUD_LIB="$AUD_LIB -lasound"
+		    AC_DEFINE(HAVE_ALSA_AUDIO)
+		    # HAVE_OSS_AUDIO is defined so that the ALSA OSS emulation
+		    # works for those cards which are not supported natively
+		    AC_DEFINE(HAVE_OSS_AUDIO)
+	    ])
+	else
+            AC_MSG_RESULT(Disabled by configure)
+	fi
+	# Default is to use OSS drivers...
+	AUD_OBJ="$AUD_OBJ auddev_oss.o"
+	AC_CHECK_HEADERS(sys/soundcard.h soundcard.h)
+	AC_DEFINE(HAVE_OSS_AUDIO)
+	;;
+*freebsd*)
+	# PC Speaker device on FreeBSD
+	AC_CHECK_HEADERS(machine/pcaudioio.h)
+	if test "$ac_cv_header_machine_h"="yes" ; then
+		AUD_OBJ="$AUD_OBJ auddev_pca.o"
+		AC_DEFINE(HAVE_PCA_AUDIO)
+	fi
+	# Note luigi and newpcm have compatible soundcard.h files but
+	# mixer behaves differently under both systems.  During runtime
+	# only one of these modules will be used.
+	AUD_OBJ="$AUD_OBJ auddev_luigi.o auddev_newpcm.o"
+	AC_DEFINE(HAVE_LUIGI_AUDIO) 
+  	AC_DEFINE(HAVE_NEWPCM_AUDIO) 
+	;;
+*netbsd*)
+	AC_CHECK_LIB(ossaudio, main)
+	if test "$ac_cv_lib_ossaudio_main"="yes"; then
+		AC_CHECK_HEADERS(sys/soundcard.h soundcard.h)
+		AUDIOBJ="$AUDIOBJ auddev_oss.o"
+		AUD_LIB="$AUD_LIB -lossaudio"
+		AC_DEFINE(HAVE_OSS_AUDIO)
+	fi
+	AC_CHECK_HEADERS(sys/audioio.h)
+	AUD_OBJ="$AUDIOBJ auddev_netbsd.o"
+	AC_DEFINE(HAVE_NETBSD_AUDIO)
+	;;
+*irix*)
+	AUD_LIB="$AUD_LIB -laudio"
+	AUD_OBJ="$AUD_OBJ auddev_sgi.o"
+	AC_DEFINE(HAVE_SGI_AUDIO)
+	;;
+*hpux*)
+	AUD_LIB="$AUD_LIB -lAlib"
+	AUD_OBJ="$AUD_OBJ auddev_hpux_raw.o"
+	AC_DEFINE(HAVE_HP_AUDIO)
+	;;
+*darwin*)
+	AUD_LIB="$AUD_LIB -framework CoreAudio -framework AudioToolbox -framework AudioUnit -framework CoreServices"
+        AUD_OBJ="$AUD_OBJ auddev_macosx.o"
+	AC_DEFINE(HAVE_MACOSX_AUDIO)
+
+dnl Check for 64-bit host gcc - in Snow Leopard+ Can only use 64-bit when 10.4 compat not enabled
+AC_MSG_CHECKING([for a 64-bit gcc on OSX])
+        if gcc -v 2>&1 | grep host=x86_64 >& /dev/null ; then
+              AC_MSG_RESULT([Forcing 32-bit binary])
+              #CFLAGS="$CFLAGS -arch i386 -arch x86_64"
+              CFLAGS="$CFLAGS -arch i386"
+              LIBS="$LIBS -mmacosx-version-min=10.4"
+        else
+              AC_MSG_RESULT([No - Only building 32-bit binary])
+        fi
+	;;
+esac
+
+AC_SUBST(AUD_OBJ)
+AC_SUBST(AUD_INC)
+AC_SUBST(AUD_LIB)
+
+# TCL/TK 
+#------------------------------------------------------------------------------
+# We could be dealing with a source installation or a full installation.
+#------------------------------------------------------------------------------
+
+SC_PATH_TCLCONFIG
+SC_LOAD_TCLCONFIG
+
+AC_MSG_CHECKING([for a compatible version of Tcl])
+if test "${TCL_MAJOR_VERSION}" -gt 8  \
+  -o \( "${TCL_MAJOR_VERSION}" -eq 8 -a "${TCL_MINOR_VERSION}" -ge 4 \); then
+    AC_MSG_RESULT([Tcl ${TCL_VERSION}${TCL_PATCH_LEVEL}])
+
+elif test "${TCL_VERSION}" = "8.0" ; then
+    if test -f "${TCL_SRC_DIR}/generic/tcl2c.c" ; then
+        AC_MSG_RESULT([UCL Tcl ${TCL_VERSION}${TCL_PATCH_LEVEL}])
+    else
+        AC_MSG_ERROR([Found Tcl 8.0 which is not UCL Tcl 8.0])
+    fi
+
+else
+    AC_MSG_ERROR([Tcl $TCL_VERSION, compatible Tcl for RAT not found
+Use --with-tcl= option to indicate location of tclConfig.sh file for Tcl.])
+fi
+
+SC_PATH_TKCONFIG
+SC_LOAD_TKCONFIG
+
+AC_MSG_CHECKING([for a compatible version of Tk])
+if test "${TCL_VERSION}" = "${TK_VERSION}"; then
+    AC_MSG_RESULT([Tk ${TK_VERSION}${TK_PATCH_LEVEL}])
+
+else
+    AC_MSG_ERROR([${TCL_BIN_DIR}/tclConfig.sh is for Tcl ${TCL_VERSION}.
+${TK_BIN_DIR}/tkConfig.sh is for Tk ${TK_VERSION}.
+Tk ${TK_VERSION} needs Tcl ${TK_VERSION}
+Use --with-tcl= option to indicate location of tclConfig.sh file for Tcl.
+Use --with-tk= option to indicate location of tkConfig.sh file for Tk.])
+fi
+
+if test -f "${TCL_BIN_DIR}/Makefile" ; then
+    # dealing with a Tcl source installation
+    TCL_INC="-I${TCL_SRC_DIR}/generic"
+    TCL_LIB="-L${TCL_SRC_DIR}/unix ${TCL_LIB_FLAG}"
+
+else
+    # dealing with a Tcl full installation
+
+    if test -d "${TK_BIN_DIR}/Headers" ; then
+        # Darwin / MacOS X
+        TCL_INC=-I${TCL_BIN_DIR}/Headers
+
+    else
+        TCL_INC=$TCL_INCLUDE_SPEC
+    fi
+
+    TCL_LIB=$TCL_LIB_SPEC
+fi
+
+if test -f "${TK_BIN_DIR}/Makefile" ; then
+    # dealing with a Tk source installation
+    TK_INC="-I${TK_SRC_DIR}/generic"
+    TK_LIB="-L${TK_SRC_DIR}/unix ${TK_LIB_FLAG}"
+
+else
+    # dealing with a Tk full installation
+
+    if test -d "${TK_BIN_DIR}/Headers" ; then
+        # Darwin / MacOS X
+        TK_INC=-I${TK_BIN_DIR}/Headers
+
+    else
+        TK_INC=$TK_INCLUDE_SPEC
+    fi
+
+    TK_LIB=$TK_LIB_SPEC
+fi
+
+AC_SUBST(TCL_INC)
+AC_SUBST(TCL_LIB)
+AC_SUBST(TK_INC)
+AC_SUBST(TK_LIB)
+
+AC_SUBST(TK_XINCLUDES)
+AC_SUBST(TK_XLIBSW)
+
+###############################################################################
+# IPv6 related configuration options (needs to go before common to guarantee
+# linkage).
+
+AC_ARG_ENABLE(ipv6,
+        [  --enable-ipv6           enable ipv6],
+	AC_DEFINE(HAVE_IPv6))
+
+AC_ARG_ENABLE(kame-ipv6,
+	[  --enable-kame-ipv6      enable kame implementation of ipv6],
+	[
+		AC_DEFINE(HAVE_IPv6)
+		LIBS="$LIBS -L/usr/local/v6/lib -linet6"
+	])
+
+#-----------------------------------------------------------------------------
+# Check for UCL Multimedia Base (formerly common) library
+#-----------------------------------------------------------------------------
+PARENT=`echo $PWD | sed -e 's%/[[^/]]*$%%'`
+DEFAULT_COMMON_INC=${PARENT}/common/src
+DEFAULT_COMMON_LIB=${PARENT}/common/src
+
+AC_ARG_WITH(common,           
+	[  --with-common=DIR       specify location of UCL's common library],
+	[ COMMON_INC=$withval
+	  COMMON_LIB=$withval],
+	[ COMMON_INC=${DEFAULT_COMMON_INC}
+	  COMMON_LIB=${DEFAULT_COMMON_LIB} ])
+
+# dirs in order of preference of where to find UCL common header files 
+dirs="$COMMON_INC $COMMON_INC/include \ 
+	${prefix}/include/uclmmbase \
+	${prefix}/include/common-mml \
+	/usr/include/uclmmbase \
+	/usr/include/common-mml \
+	/usr/local/include/uclmmbase \
+	/usr/local/include/common-mml"
+
+FOUND_DIR=no
+for d in $dirs ; do
+	if test -d "$d" ; then
+		hdirs="$hdirs $d"
+		FOUND_DIR=yes
+	fi
+done
+
+if test x$FOUND_DIR = xno
+then
+	hdirs=$COMMON_INC/include
+fi
+
+FOUND_COMMON_H=no
+for h in $hdirs ; do
+	AC_CHECK_HEADER($h/mbus.h,
+	[
+		COMMON_INC="${h}"
+		FOUND_COMMON_H=yes
+		break
+	])
+done
+
+if test $FOUND_COMMON_H = no
+then
+	echo "Could not find mbus.h from UCL's common library.  Maybe:"
+	echo "   (a) common library is not installed."
+	echo "   (b) common library's locations was mis/not specified (--with-common=DIR)."
+	echo "   (c) this script failed to see it (please inform rat-trap@cs.ucl.ac.uk)."
+	exit
+fi
+
+AC_MSG_NOTICE([using UCL common library header files found in $COMMON_INC])
+
+COMMON_INC="-I${COMMON_INC}"
+AC_SUBST(COMMON_INC)
+
+# Check in a few install locations for libuclmmbase
+for f in `ls -d ${COMMON_LIB}/libuclmmbase.* 2>/dev/null` \
+	`ls -d ${COMMON_LIB}/lib64/libuclmmbase.* 2>/dev/null` \
+	`ls -d ${COMMON_LIB}/lib/libuclmmbase.* 2>/dev/null` \
+	`ls -d ${prefix}/lib64/libuclmmbase.* 2>/dev/null` \
+	`ls -d ${prefix}/lib/libuclmmbase.* 2>/dev/null` \
+	`ls -d /usr/lib64/libuclmmbase.* 2>/dev/null` \
+	`ls -d /usr/lib/libuclmmbase.* 2>/dev/null` \
+	`ls -d /usr/local/lib64/libuclmmbase.* 2>/dev/null` \
+	`ls -d /usr/local/lib/libuclmmbase.* 2>/dev/null` 
+do
+	if test -f "$f" ; then
+		COMMON_LIB=`dirname $f`
+		COMMON_LIB=`(cd $COMMON_LIB ; pwd)`
+		break
+	fi
+done
+
+FOUND_COMMON_LIB=no
+AC_CHECK_LIB(uclmmbase, mbus_init, FOUND_COMMON_LIB=yes, , -L${COMMON_LIB})
+
+if test x$FOUND_COMMON_LIB = xno
+then
+	echo "Could not find libuclmmbase.  RAT may not build because:"
+	echo "   (a) Library is not installed."
+	echo "   (b) Library is not built or not in expected location (--with-common=DIR)."
+	echo "   (c) this script failed to see it (please inform rat-trap@cs.ucl.ac.uk)."
+	exit
+fi
+
+AC_MSG_NOTICE([using libuclmmbase found in $COMMON_LIB])
+
+# Convert paths into compiler arguments
+
+if test "${COMMON_LIB}" = "/usr/lib64"
+then
+	COMMON_LIB="-luclmmbase"
+elif test "${COMMON_LIB}" = "/usr/lib"
+then
+	COMMON_LIB="-luclmmbase"
+else
+	COMMON_LIB="-L${COMMON_LIB} -luclmmbase"
+fi
+AC_SUBST(COMMON_LIB)
+
+AC_SUBST(EXTERNAL_DEP)
+
+
+# GSM flag checks
+#-----------------------------------------------------------------------------
+# Check if Signed arithmetic shift right (SASR).  If SASR then -1 >> 1 == 1.
+# Return value from test program of zero indicates success.
+#-----------------------------------------------------------------------------
+AC_CACHE_CHECK(signed arithmetic shift right, gsm_cv_sasr,
+	AC_TRY_RUN([int main() { return (-1 >> 1) != -1;}], 
+		 gsm_cv_sasr=yes,
+		 gsm_cv_sasr=no))
+if test $gsm_cv_sasr = yes ; then
+	AC_DEFINE(SASR)
+fi
+
+#-----------------------------------------------------------------------------
+# GSM Options, almost certainly not sensible on all platforms, performance
+# tests in a configure script ?
+#-----------------------------------------------------------------------------
+AC_DEFINE(FAST)
+AC_DEFINE(USE_FLOAT_MUL)
+
+#-----------------------------------------------------------------------------
+# Just check if g728 library exists behind this directory.
+#-----------------------------------------------------------------------------
+G728_DIR=${PARENT}/g728lib
+G728_LIB=${G728_DIR}
+EXTRA_CODEC_OBJ=
+
+AC_CHECK_LIB(g728,
+	g728_encoder_init,
+	[
+		G728_INC=-I${G728_DIR}
+		G728_LIB="-L${G728_LIB} -lg728"
+		G728_CODEC_OBJ="codec_g728.o"
+		AC_DEFINE(HAVE_G728)
+	],
+	[
+		G728_INC=
+		G728_LIB=
+		G728_CODEC_OBJ=
+	],
+	-L${G728_LIB} -lm)
+
+AC_SUBST(G728_INC)
+AC_SUBST(G728_LIB)
+AC_SUBST(G728_CODEC_OBJ)
+
+#-----------------------------------------------------------------------------
+# Assorted Enable options 
+#-----------------------------------------------------------------------------
+AC_ARG_ENABLE(optimize,
+        [  --enable-optimize       enable optimization],
+        [if test $enableval = yes
+        then
+		AC_DEFINE(NDEBUG)
+	fi])
+AC_ARG_ENABLE(profile,
+        [  --enable-profile        enable profiling],
+        [if test $enableval = yes
+        then
+                if test "$GCC" = yes
+                then
+                        CFLAGS="$CFLAGS -pg"
+                else
+                        AC_ERROR([Don't know how to enable profiling for $CC])
+                fi
+        fi])
+AC_ARG_ENABLE(bounds,
+        [  --enable-bounds         enable bounds checking],
+        [if test $enableval = yes
+        then
+                if test "$GCC" = yes
+                then
+                        CFLAGS="$CFLAGS -fbounds-checking"
+                        LIBS="$LIBS -lcheck"
+                else
+                        AC_ERROR([Don't know how to enable profiling for $CC])
+                fi
+        fi])
+AC_ARG_ENABLE(debug,
+        [  --enable-debug          enable debug messages and code],
+        [if test $enableval = yes
+        then
+                AC_DEFINE(DEBUG)
+        fi])
+AC_ARG_ENABLE(debug-mem,
+        [  --enable-debug-mem      enable memory debugging code],
+        [if test $enableval = yes
+        then
+                AC_DEFINE(DEBUG_MEM)
+        fi])
+
+AC_CONFIG_HEADER(ratconf.h:config.h.in)
+
+#------------------------------------------------------------------------------
+AC_OUTPUT(Makefile)
+

@@ -1,0 +1,273 @@
+'\" t
+.\" @(#)rat.1 3.1 97/02/22 
+.\" Copyright (c) 1997-2000 University College London.
+.\" Written by Orion Hodson
+.\"
+.TH rat 1 "28 March 2008"
+.SH NAME
+rat \- unicast and multicast audio conferencing tool
+.SH SYNOPSIS
+.B rat    
+.RB [options] 
+.I address/port
+.SH DESCRIPTION
+.LP
+.I RAT 
+is a network audio conferencing and streaming application with
+support for multiple sampling rates, error concealment, and redundant
+audio encoding.  Transmissions can be between two participants directly
+(unicast) or between a group of participants on a common multicast
+address.
+
+To initiate a unicast conference the user specifies the 
+.I address 
+of the destination 
+host name or IP address and a port number.  To participate in a 
+multicast conference a Class D group address should be specified
+together with a 
+.I port 
+number.  The application uses the greatest even 
+integer less than or equal to the port specified for data (RTP) and 
+the port above for control messages (RTCP).  The protocols RTP and 
+RTCP used are specified in RFC 1889.
+
+.SH OPTIONS
+The following options are supported:
+.TP
+.BI -agc " 1|0"
+Enable automatic gain control (AGC).
+.TP
+.BI -allowloopback
+Causes rtp packets to be loopbacked during multicast
+sessions.
+.TP
+.BI \-crypt " key"
+Enable encryption, with the specified key. Encryption is
+done using DES, and is believed compatible with encrypting
+versions of vat.
+.TP
+.BI -C " name"
+Sets the RAT window title to 
+.I name.	
+.TP
+.BI -E " email"
+Sets the 
+.I email
+address transmitted to remote participants.
+.TP
+.BI \-f " codec"
+Specifies the primary encoding used when transmitting audio.
+.TP
+.BI -logstats
+Enables logging of statistics to a file (named "rat-SESSIONID-TIME-USERNAME-HOSTNAME.log" in a new sub-directory named "core-rat-VERSION")
+.TP
+.BI -logdebug " filename"
+Enables logging of some debug info to 
+.I filename
+which is located in a new sub-directory named "core-rat-VERSION"
+.TP
+.BI -L " location"
+Sets the 
+.I location
+description transmitted to remote participants.
+.TP
+.BI -noui
+RAT runs without a User Interface
+.TP
+.BI -N " username"
+Sets the 
+.I username 
+transmitted to remote participants.
+.TP
+.BI -P " phone"
+Sets the 
+.I phone
+number transmitted to remote participants.
+.TP
+.BI -pt " type/codec"
+Specifies the payload type to be used for 
+.I codec.
+.TP
+.BI -r " codec/offset"
+Specifies the coding used for the redundant encoder and the offset
+of the redundant encoding relative to the primary in audio frames.
+.TP
+.BI -repair " method"
+Specifies the use of receiver based repair technique based on
+.I method.  
+This can currently be none or repeat.   
+.TP
+.BI -t " ttl"
+Specifies the TTL (time to live) value set in the packet headers.  This limits 
+the scope of the packets.  The following values are generally considered	
+appropriate:  
+.RS 10n
+.nf
+.ta 
+  4 campus/organization
+ 16 country
+ 64 continent
+127 planet
+.fi
+.RE
+.TP
+.BI -S " siteid"
+Enables sending of 
+.I siteide  
+which is an arbitrary string to provide for automated site identification.
+.TP
+.BI -silence " on|off"
+Turns silence suppression on or off.
+.TP
+.B -version
+Displays the version number.
+
+.SH USER INTERFACE
+
+.SS Main Window
+
+The main window of RAT is split into three sections.  At the top of
+the window are the audio device port and volume selectors, and the
+mutes for incoming and outgoing audio.  In the middle the list of
+participants shows local and remote conference members.  Active
+speakers are highlighted. Clicking the left mouse button on the name
+of a remote participant will display a user information panel, giving
+various reception statistics for that user.  Individuals can be
+selectively muted by clicking on them with the middle mouse button on
+three button systems, or moving the mouse to the individual and
+pressing the m.  At the bottom of the window are buttons for the
+options panel, the about panel, and to quit.
+
+Pressing the right mouse button anywhere within the RAT window will
+temporarily toggle the state of the audio input mute: this allows a
+"push-to-talk" mode of operation.
+
+.SS Options
+
+RAT supports a large number of options and pressing the "options"
+button will launch the optinos panel.  The best approach to see what
+is available is to go and explore.  The options panel has a category
+menu at the top and by clicking on it options in the different
+categories are presented.  
+
+.TP 
+.B Personal
+User details that are conveyed to other conference participants.
+
+.TP	
+.B Transmission
+Allows the selection of codec used for transmission, the setting of
+the number, of units of audio per packet, and the selection of
+redundant audio data.
+
+.TP
+.B Reception
+Options that control how received audio is decoded.
+
+.TP
+.B Audio
+Options to select and configure the available audio device, and
+features that pertain to audio handling (i.e. silence suppression,
+agc, audio loopback, and echo suppression).
+
+.TP
+.B Codecs
+Displays details on available codecs and allows for them to be assigned
+to alternate RTP payload numbers.  Map payload numbers at your own peril.
+
+.TP
+.B Security
+Allows DES encryption of audio for incoming and outgoing streams.
+
+.TP
+.B Interface
+Allows users to control balloon help, enable lip synchronization with
+suitably modified versions of 
+.I VIC
+, and displaying of windows for reception quality and file playback and recording.
+
+	
+.SH EXAMPLES
+To start a unicast session between 
+the current host and the host
+shrew.cs.ucl.ac.uk using port 12000 type:
+
+		rat shrew.cs.ucl.ac.uk/12000
+
+To join a multicast session on group address 224.5.6.7 and port 8110
+type, using primary encoding of dvi and a secondary encoding of lpc:
+
+		rat -f dvi/lpc 224.5.6.7/8110
+
+.SH AUTHORS
+This version of RAT was written by Orion Hodson
+<O.Hodson@cs.ucl.ac.uk> and Colin Perkins <C.Perkins@cs.ucl.ac.uk> in
+the Networked Multimedia Group, University College London.  Markus
+Iken contributed the 3d rendering code. Bob's Olson and Lindell contributed
+the ALSA audio interface.
+
+The first version of RAT was developed by Vicky Hardman 
+<V.Hardman@cs.ucl.ac.uk> and Isidor Kouvelas <I.Kouvelas@cs.ucl.ac.uk>
+at University College London.  The DES encryption was written by
+Saleem Bhatti <S.Bhatti@cs.ucl.ac.uk> and integrated by Darren Harris.
+
+RAT has been supported by the following projects:
+
+.IP
+AVATS	 AccessGrid Video and Audio Tools Support (OMII-UK)
+
+SUMOVER	 SUpport for MbOne VidEoconferencing for the Research community (JISC)
+
+MICE	 Multimedia Conferencing in Europe (ESPRIT)
+
+MERCI	 Multimedia European Research Conferencing Integration
+
+ReLaTe	 Remote Language Teaching for Super Janet (BT/JISC)
+
+RAT	 Robust Audio Tool (EPSRC/BT)
+.RE
+
+This software has benefited from hardware donations by Sun
+Microsystems and Hewlett Packard, and software donations by Microsoft.
+
+.SH ACKNOWLEDGEMENTS
+
+We thank Roy Bennett, Davide Cavagnino, Jon Crowcroft, Ross Finlayson,
+Atanu Ghosh, Terry Gibbons, Jeremy Hall, Mark Handley, Marcus Iken,
+Iain McKay, Roman Kurmanowyts, Robert Olson, Fulvio Risso, Roy
+Rodenstein, Lorenzo Vicisano, Anna Watson, Michael Wallbaum, Hui Zhao,
+and our collegues at UCL who have provided countless suggestions and
+extended good humour through the buggy pre-releases.
+
+Modifications for HP-UX by Terje Vernly <terjeve@usit.uio.no>
+and Geir Harald Hansen <g.h.hansen@usit.uio.no>.
+
+This software is derived, in part, from publically available source 
+code with the following copyright:
+
+Copyright (c) 1991-1993,1996 Regents of the University of California.
+
+Copyright (c) 1992 Stichting Mathematisch Centrum, Amsterdam.
+
+Copyright (c) 1991,1992 RSA Data Security, Inc.
+
+Copyright (c) 1992 Jutta Degener and Carsten Bormann, Technische 
+Universitaet Berlin.
+
+Copyright (c) 1994 Henning Schulzrinne.
+
+Copyright (c) 1994 Paul Stewart.
+
+This product includes software developed by the Computer Systems
+Engineering Group and by the Network Research Group at Lawrence 
+Berkeley Laboratory.
+ 
+Encryption features of this software use the RSA Data Security, Inc. 
+MD5 Message-Digest Algorithm.
+.SH FEEDBACK
+Please send comments, bug-reports, patches, and suggestions to
+rat-trap@cs.ucl.ac.uk.
+
+Please check http://mediatools.cs.ucl.ac.uk/ for latest release information.
+
+

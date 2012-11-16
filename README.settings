@@ -1,0 +1,58 @@
+>Can you explain the default file a little better.
+>ie. what should the actual file name be and where should it be?
+
+On Unix, there are two files in your home directory:
+	.RATdefaults
+	.RTPdefaults
+
+The .RATdefaults file can have the following entries:
+
+*audioTool: RAT v4.2.5 SunOS 5.7 (sun4u)
+*audioLoopback: 0		--+
+*audioAGC: 0			  |
+*audioEchoSuppress: 0		  |
+*audioLecture: 0		  +-- 0 = disable, 1 = enable
+*audioPowermeters: 1		  |
+*audio3dRendering: 0		  |
+*audioLimitPlayout: 0		--+
+*audioMaxPlayout: 2000		  +-- If audioLimitPlayout is enabled,
+*audioMinPlayout: 0		--+   specify limits in milliseconds
+*audioPrimary: GSM		  }-- Primary codec
+*audioUnits: 1			  }-- Number of frames of audio per packet
+*audioChannelCoding: None	  }-- Type of channel coding used
+*audioChannelParameters: 	  }-- Optional channel coding parameters
+*audioRepair: Pattern-Match	  }-- Type of repair used
+*audioSilence: Off		--+-- Control silence suppression
+*audioSilenceManualThresh: 100  --+
+*audioAutoConvert: High Quality   }-- Type of sample rate conversion
+*audioChannelsIn: 1		  }-- 1 = mono, 2 = stereo
+*audioDevice: Sun Audio Device	  }-- Audio card being used
+*audioInputPort: Microphone	--+
+*audioOutputPort: Headphone	  |
+*audioInputGain: 49		  +-- Record and playback device,
+*audioOutputGain: 43		  |   sample rate, and volume
+*audioFrequency: 8000		--+
+*audioInputMute: 1		  }-- Start with transmission muted?
+*audioOutputMute: 1		  }-- Start with reception muted?
+*rtpPromiscuousMode: 1    }-- enable(1)/disable(0) immediate source creation
+
+All apart from the last three options are saved automatically, and correspond
+to options which can be set in the user interface. The audioInputMute and
+audioOutputMute settings are never saved, but are used in the are manually
+added to the settings (hence can be used to force rat to transmit on startup).
+
+And .RTPdefaults has a similar format, and corresponds to the setting in the
+personal details options panel.
+
+*rtpName: Colin Perkins
+*rtpEmail: c.perkins@cs.ucl.ac.uk
+*rtpPhone: +44 171 419 3666
+*rtpLoc: University College London
+*rtpNote:
+
+On Windows machines, the settings are stored in the registry under
+	Software\Mbone Applications\rat
+	Software\Mbone Applications\common
+in HKEY_CURRENT_USER. The settings which may be stored here are the
+same as those in the unix version, and may be edited with regedit.
+

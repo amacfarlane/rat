@@ -1,0 +1,8 @@
+*** 2001/06/04 ***
+. Use environment variable IXJ_AEC=x to set Echo Cancellation
+  o Goes 1-5 = low, medium, high, auto, auto + auto_gain
+. Reads and writes seem to need to be full blksize
+. No builtin codecs used
+. Needs latest ixj modules from CVS:
+  o http://www.openh323.org/driver/cvs.html
+  . Add auddev_ixj.o to MAkefile targets.

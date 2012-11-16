@@ -1,0 +1,23 @@
+README.HPUX10
+-------------
+
+Additional info needed to run/compile RAT on HPUX-10.xx machines.
+
+  Since the RAT uses the audio device directly (raw) instead of the Aserver
+  interface of HP, one needs to make this device writable to get it running.
+
+    as root user :
+
+      #ll /dev/audio
+      crw-r--r--   1 root       sys         66 0x000000 Jun 23 18:17 audio
+
+      #chmod o+w /dev/audio
+
+      #ll /dev/audio
+      crw-r--rw-   1 root       sys         66 0x000000 Jun 23 18:17 audio
+
+
+  Should solve this problem.
+
+
+
